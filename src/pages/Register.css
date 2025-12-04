@@ -1,0 +1,325 @@
+/* ===== Register Page Styles ===== */
+
+.register-page {
+  min-height: 100vh;
+  display: flex;
+}
+
+/* Left side - Branding */
+.register-branding {
+  flex: 1;
+  display: none;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #047857 100%);
+  padding: var(--spacing-3xl);
+  position: relative;
+  overflow: hidden;
+}
+
+.register-branding::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+}
+
+.register-branding::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -30%;
+  width: 80%;
+  height: 80%;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 60%);
+}
+
+/* Right side - Form */
+.register-form-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  background: var(--color-background);
+  overflow-y: auto;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 480px;
+  animation: fadeIn 0.5s ease-out;
+  padding: var(--spacing-lg) 0;
+}
+
+.register-header {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.register-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+.register-logo-icon {
+  width: 44px;
+  height: 44px;
+  background: var(--color-primary);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.register-logo span {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.register-header h2 {
+  font-size: 1.5rem;
+  margin-bottom: var(--spacing-xs);
+}
+
+.register-header p {
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+
+/* Form card */
+.register-form-card {
+  background: var(--color-surface);
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-lg);
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.register-form .form-group {
+  margin-bottom: 0;
+}
+
+/* Two column layout for some fields */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+.input-with-icon {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.input-with-icon input,
+.input-with-icon select {
+  padding-left: 44px;
+}
+
+.select-wrapper select {
+  width: 100%;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+/* Role selector */
+.role-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+.role-option {
+  position: relative;
+}
+
+.role-option input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.role-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+
+.role-card:hover {
+  border-color: var(--color-primary-light);
+  background: var(--color-primary-subtle);
+}
+
+.role-option input:checked + .role-card {
+  border-color: var(--color-primary);
+  background: var(--color-primary-subtle);
+}
+
+.role-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--color-background);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+}
+
+.role-option input:checked + .role-card .role-icon {
+  background: var(--color-primary);
+  color: white;
+}
+
+.role-card h4 {
+  font-size: 0.9375rem;
+  margin: 0;
+}
+
+.role-card p {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Referral Welcome Banner */
+.referral-welcome-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  border: 1px solid #86efac;
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.referral-welcome-banner svg {
+  color: #22c55e;
+  flex-shrink: 0;
+}
+
+.referral-welcome-banner strong {
+  display: block;
+  color: #166534;
+  font-size: 0.9375rem;
+  margin-bottom: 2px;
+}
+
+.referral-welcome-banner span {
+  display: block;
+  color: #15803d;
+  font-size: 0.8125rem;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 14px 24px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Footer */
+.register-footer {
+  text-align: center;
+  margin-top: var(--spacing-lg);
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+
+.register-footer a {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.register-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (min-width: 1024px) {
+  .register-branding {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .register-logo {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .role-selector {
+    grid-template-columns: 1fr;
+  }
+  
+  .register-form-container {
+    padding: var(--spacing-md);
+  }
+  
+  .register-form-card {
+    padding: var(--spacing-lg);
+  }
+}

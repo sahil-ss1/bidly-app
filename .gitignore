@@ -1,0 +1,57 @@
+# Dependencies
+node_modules/
+
+# Environment variables (NEVER push these!)
+.env
+.env.local
+.env.production
+.env.development
+
+# Build output
+dist/
+build/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+
+# Uploads (local development)
+uploads/
+
+# Google Cloud credentials (NEVER push!)
+*-credentials.json
+service-account*.json
+gcs-key*.json
+
+# Test coverage
+coverage/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Lock files (optional - some prefer to commit these)
+# package-lock.json
+# yarn.lock

@@ -1,0 +1,434 @@
+/* ===== GC Projects Page ===== */
+
+.gc-projects-page {
+  min-height: 100vh;
+  background: var(--color-background);
+}
+
+.projects-nav {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--spacing-md) var(--spacing-xl);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--color-text-primary);
+  flex: 1;
+}
+
+.nav-logo svg {
+  color: var(--color-primary);
+}
+
+.projects-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+}
+
+/* Filters Bar */
+.filters-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  flex-wrap: wrap;
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+  min-width: 250px;
+  max-width: 400px;
+}
+
+.search-box svg {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+}
+
+.search-box input {
+  width: 100%;
+  padding: 10px 16px 10px 44px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+  background: var(--color-surface);
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-subtle);
+}
+
+.status-filters {
+  display: flex;
+  gap: var(--spacing-xs);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 4px;
+}
+
+.status-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-transform: capitalize;
+}
+
+.status-filter-btn:hover {
+  background: var(--color-background);
+}
+
+.status-filter-btn.active {
+  background: var(--color-primary);
+  color: white;
+}
+
+.filter-count {
+  background: rgba(0,0,0,0.1);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+}
+
+.status-filter-btn.active .filter-count {
+  background: rgba(255,255,255,0.2);
+}
+
+.refresh-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.refresh-btn:hover {
+  background: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+/* Projects Table */
+.projects-table-container {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: var(--spacing-xl);
+}
+
+.projects-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.projects-table th,
+.projects-table td {
+  padding: var(--spacing-md) var(--spacing-lg);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.projects-table th {
+  background: var(--color-background);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+
+.projects-table tbody tr {
+  transition: background var(--transition-fast);
+}
+
+.projects-table tbody tr:hover {
+  background: var(--color-background);
+}
+
+.projects-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Project Cell */
+.project-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.project-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--color-primary-subtle);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.project-info h4 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 2px 0;
+}
+
+.project-info p {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Location Cell */
+.location-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.location-cell svg {
+  color: var(--color-text-muted);
+}
+
+/* Stat Cell */
+.stat-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.stat-cell svg {
+  color: var(--color-text-muted);
+}
+
+/* Date Cell */
+.date-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+}
+
+.date-cell svg {
+  color: var(--color-text-muted);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+/* Actions Cell */
+.actions-cell {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.action-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.action-btn:hover {
+  background: var(--color-background);
+}
+
+.action-btn.view:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.action-btn.edit:hover {
+  color: var(--color-warning);
+  border-color: var(--color-warning);
+}
+
+.action-btn.delete:hover {
+  color: var(--color-error);
+  border-color: var(--color-error);
+  background: var(--color-error-bg);
+}
+
+/* Empty State */
+.gc-projects-page .empty-state {
+  background: var(--color-surface);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-3xl);
+  text-align: center;
+}
+
+/* Projects Summary */
+.projects-summary {
+  display: flex;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.summary-label {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+/* Delete Modal */
+.delete-modal {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
+  max-width: 400px;
+  text-align: center;
+  animation: slideUp 0.3s ease-out;
+}
+
+.delete-modal-icon {
+  width: 64px;
+  height: 64px;
+  background: var(--color-error-bg);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--spacing-lg);
+  color: var(--color-error);
+}
+
+.delete-modal h3 {
+  font-size: 1.25rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+.delete-modal p {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-xl);
+}
+
+.delete-modal-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+}
+
+.btn-danger {
+  background: var(--color-error);
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .projects-table-container {
+    overflow-x: auto;
+  }
+  
+  .projects-table {
+    min-width: 800px;
+  }
+}
+
+@media (max-width: 768px) {
+  .projects-content {
+    padding: var(--spacing-md);
+  }
+  
+  .filters-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-box {
+    max-width: none;
+  }
+  
+  .status-filters {
+    overflow-x: auto;
+    justify-content: flex-start;
+  }
+  
+  .projects-nav {
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+  }
+  
+  .nav-logo {
+    order: -1;
+    width: 100%;
+  }
+  
+  .projects-summary {
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+  }
+  
+  .summary-item {
+    flex: 1;
+    min-width: 100px;
+  }
+}
+

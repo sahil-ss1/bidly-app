@@ -1,0 +1,57 @@
+# Render Blueprint Configuration
+# This file defines all services needed for Bidly deployment
+# Database: PostgreSQL (Render native)
+
+services:
+  # Backend API Service
+  - type: web
+    name: bidly-api
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: bidly-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GCS_BUCKET_NAME
+        sync: false
+      - key: GCS_PROJECT_ID
+        sync: false
+
+  # Frontend Static Site
+  - type: web
+    name: bidly-frontend
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: https://bidly-api.onrender.com
+
+# Database (PostgreSQL - Render native - FREE!)
+databases:
+  - name: bidly-db
+    databaseName: bidly_db
+    plan: free
+    region: oregon
+
