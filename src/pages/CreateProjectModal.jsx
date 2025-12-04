@@ -1,7 +1,8 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   X, Upload, Plus, Info, Check, Users, FileText, 
-  MapPin, Building2, Import, Loader2, Send, Sparkles, Filter, Crown
+  MapPin, Building2, Import, Loader2, Send, Sparkles, Filter, Crown,
+  Mail, AlertCircle, CheckCircle, FileUp
 } from 'lucide-react';
 import { projectsAPI, usersAPI } from '../services/api';
 import './CreateProjectModal.css';
@@ -47,6 +48,14 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingSubs, setLoadingSubs] = useState(true);
+  
+  // Import list state
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importedEmails, setImportedEmails] = useState([]);
+  const [selectedImportedEmails, setSelectedImportedEmails] = useState([]);
+  const [importLoading, setImportLoading] = useState(false);
+  const [importError, setImportError] = useState('');
+  const importFileRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -65,6 +74,86 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
       setSubcontractors([]);
     } finally {
       setLoadingSubs(false);
+    }
+  };
+
+  // Handle import file upload
+  const handleImportFile = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setImportLoading(true);
+    setImportError('');
+    setImportedEmails([]);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/utils/extract-emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to extract emails');
+      }
+
+      if (data.data.emails.length === 0) {
+        setImportError('No email addresses found in the file');
+      } else {
+        setImportedEmails(data.data.emails);
+        setSelectedImportedEmails(data.data.emails); // Select all by default
+      }
+    } catch (error) {
+      setImportError(error.message || 'Failed to process file');
+    } finally {
+      setImportLoading(false);
+      if (importFileRef.current) {
+        importFileRef.current.value = '';
+      }
+    }
+  };
+
+  // Toggle imported email selection
+  const toggleImportedEmail = (email) => {
+    if (selectedImportedEmails.includes(email)) {
+      setSelectedImportedEmails(selectedImportedEmails.filter(e => e !== email));
+    } else {
+      setSelectedImportedEmails([...selectedImportedEmails, email]);
+    }
+  };
+
+  // Add imported emails to selection
+  const handleAddImportedEmails = () => {
+    // Add emails that match existing subcontractors to selectedSubs
+    const matchingSubIds = subcontractors
+      .filter(sub => selectedImportedEmails.includes(sub.email))
+      .map(sub => sub.id);
+    
+    const newSelectedSubs = [...new Set([...selectedSubs, ...matchingSubIds])];
+    setSelectedSubs(newSelectedSubs);
+
+    // Store non-matching emails for manual invitation later
+    const nonMatchingEmails = selectedImportedEmails.filter(
+      email => !subcontractors.find(sub => sub.email === email)
+    );
+
+    // Reset import modal
+    setShowImportModal(false);
+    setImportedEmails([]);
+    setSelectedImportedEmails([]);
+
+    // Show message about non-matching emails
+    if (nonMatchingEmails.length > 0) {
+      alert(`${matchingSubIds.length} subcontractor(s) added. ${nonMatchingEmails.length} email(s) not found in system - they will receive invitations after project creation.`);
+      // Store these emails somewhere to invite them after project creation
+      localStorage.setItem('pendingInviteEmails', JSON.stringify(nonMatchingEmails));
     }
   };
 
@@ -297,8 +386,12 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
                     <label>
                       Select Subcontractors <span className="count">({selectedSubs.length})</span>
                     </label>
-                    <button type="button" className="import-btn">
-                      <Plus size={14} />
+                    <button 
+                      type="button" 
+                      className="import-btn"
+                      onClick={() => setShowImportModal(true)}
+                    >
+                      <FileUp size={14} />
                       Import List
                     </button>
                   </div>
@@ -491,6 +584,144 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
             </button>
           </div>
         </form>
+
+        {/* Import List Modal */}
+        {showImportModal && (
+          <div className="import-modal-overlay" onClick={() => setShowImportModal(false)}>
+            <div className="import-modal" onClick={e => e.stopPropagation()}>
+              <div className="import-modal-header">
+                <h3><FileUp size={20} /> Import Email List</h3>
+                <button 
+                  type="button" 
+                  className="import-modal-close"
+                  onClick={() => setShowImportModal(false)}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="import-modal-body">
+                {/* Upload Section */}
+                <div className="import-upload-section">
+                  <p className="import-instructions">
+                    Upload a PDF or document containing email addresses. 
+                    We'll extract all emails and let you select who to invite.
+                  </p>
+                  
+                  <div 
+                    className="import-upload-area"
+                    onClick={() => importFileRef.current?.click()}
+                  >
+                    <input
+                      ref={importFileRef}
+                      type="file"
+                      accept=".pdf,.doc,.docx,.txt,.csv"
+                      onChange={handleImportFile}
+                      style={{ display: 'none' }}
+                    />
+                    {importLoading ? (
+                      <>
+                        <Loader2 size={32} className="animate-spin" />
+                        <span>Processing file...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload size={32} />
+                        <span>Click to upload file</span>
+                        <span className="upload-formats">PDF, DOC, DOCX, TXT, CSV</span>
+                      </>
+                    )}
+                  </div>
+
+                  {importError && (
+                    <div className="import-error">
+                      <AlertCircle size={16} />
+                      {importError}
+                    </div>
+                  )}
+                </div>
+
+                {/* Extracted Emails List */}
+                {importedEmails.length > 0 && (
+                  <div className="import-emails-section">
+                    <div className="import-emails-header">
+                      <span>
+                        <CheckCircle size={16} />
+                        Found {importedEmails.length} email(s)
+                      </span>
+                      <button 
+                        type="button"
+                        className="select-all-btn"
+                        onClick={() => {
+                          if (selectedImportedEmails.length === importedEmails.length) {
+                            setSelectedImportedEmails([]);
+                          } else {
+                            setSelectedImportedEmails([...importedEmails]);
+                          }
+                        }}
+                      >
+                        {selectedImportedEmails.length === importedEmails.length ? 'Deselect All' : 'Select All'}
+                      </button>
+                    </div>
+
+                    <div className="import-emails-list">
+                      {importedEmails.map((email, index) => {
+                        const existingSub = subcontractors.find(s => s.email === email);
+                        return (
+                          <div 
+                            key={index}
+                            className={`import-email-item ${selectedImportedEmails.includes(email) ? 'selected' : ''}`}
+                            onClick={() => toggleImportedEmail(email)}
+                          >
+                            <div className={`import-checkbox ${selectedImportedEmails.includes(email) ? 'checked' : ''}`}>
+                              {selectedImportedEmails.includes(email) && <Check size={12} />}
+                            </div>
+                            <div className="import-email-info">
+                              <span className="import-email">{email}</span>
+                              {existingSub ? (
+                                <span className="import-email-status existing">
+                                  <Users size={12} /> {existingSub.name || 'Registered'}
+                                </span>
+                              ) : (
+                                <span className="import-email-status new">
+                                  <Mail size={12} /> Will receive invite
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="import-modal-footer">
+                <button 
+                  type="button" 
+                  className="btn-cancel"
+                  onClick={() => {
+                    setShowImportModal(false);
+                    setImportedEmails([]);
+                    setSelectedImportedEmails([]);
+                    setImportError('');
+                  }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="button" 
+                  className="btn-create"
+                  disabled={selectedImportedEmails.length === 0}
+                  onClick={handleAddImportedEmails}
+                >
+                  <Plus size={16} />
+                  Add {selectedImportedEmails.length} Email(s)
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
