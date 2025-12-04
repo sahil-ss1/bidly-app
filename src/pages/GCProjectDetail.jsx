@@ -4,7 +4,7 @@ import {
   ArrowLeft, MapPin, Calendar, FileText, Users, Mail, 
   Plus, Upload, Send, Eye, Sparkles, BarChart3, X,
   Clock, Building2, Loader2, RefreshCw, CheckCircle, XCircle, EyeIcon,
-  Target, Shield, TrendingUp, Edit, Save, LayoutDashboard
+  Target, Shield, TrendingUp, Edit, Save, LayoutDashboard, DollarSign, Phone, Briefcase
 } from 'lucide-react';
 import { projectsAPI, bidsAPI } from '../services/api';
 import './ProjectDetail.css';
@@ -31,6 +31,7 @@ function GCProjectDetail() {
     bid_deadline: '',
     status: ''
   });
+  const [selectedBid, setSelectedBid] = useState(null);
 
   useEffect(() => {
     loadProject();
@@ -601,24 +602,23 @@ function GCProjectDetail() {
                         <div className="bid-amount">${Number(bid.amount).toLocaleString()}</div>
                       )}
                       
-                      {bid.notes && <p className="bid-notes">{bid.notes}</p>}
+                      {bid.notes && <p className="bid-notes">{bid.notes.substring(0, 100)}{bid.notes.length > 100 ? '...' : ''}</p>}
                       
-                      {bid.ai_summary && (
-                        <div className="bid-ai-summary">
-                          <strong>
-                            <Sparkles size={14} />
-                            AI Summary
-                          </strong>
-                          <p>{bid.ai_summary}</p>
-                        </div>
-                      )}
-                      
-                      {bid.bid_file_url && (
-                        <a href={bid.bid_file_url} target="_blank" rel="noopener noreferrer" className="file-action-btn" style={{ marginBottom: 'var(--spacing-md)', display: 'inline-flex', alignItems: 'center' }}>
-                          <Eye size={16} style={{ marginRight: '6px' }} />
-                          View Bid File
-                        </a>
-                      )}
+                      <div className="bid-card-actions">
+                        <button 
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => setSelectedBid(bid)}
+                        >
+                          <Eye size={16} />
+                          View Details
+                        </button>
+                        {bid.bid_file_url && (
+                          <a href={bid.bid_file_url} target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm">
+                            <FileText size={16} />
+                            Bid File
+                          </a>
+                        )}
+                      </div>
                       
                       <div className="bid-card-footer">
                         <select
@@ -697,6 +697,128 @@ function GCProjectDetail() {
           )}
         </div>
       </div>
+
+      {/* Bid Details Modal */}
+      {selectedBid && (
+        <div className="modal-overlay" onClick={() => setSelectedBid(null)}>
+          <div className="modal-container bid-detail-modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Bid Details</h2>
+              <button className="modal-close-btn" onClick={() => setSelectedBid(null)}>
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="modal-body">
+              {/* Subcontractor Info */}
+              <div className="bid-detail-section">
+                <div className="bid-detail-header">
+                  <div className="bid-detail-avatar">
+                    {getInitials(selectedBid.sub_name)}
+                  </div>
+                  <div className="bid-detail-info">
+                    <h3>{selectedBid.sub_name || 'Unknown'}</h3>
+                    {selectedBid.sub_company && <p className="company-name">{selectedBid.sub_company}</p>}
+                    <span className={`status-badge status-${selectedBid.status}`}>{selectedBid.status}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bid Amount */}
+              <div className="bid-detail-section">
+                <h4><DollarSign size={18} /> Bid Amount</h4>
+                <div className="bid-detail-amount">
+                  {selectedBid.amount ? `$${Number(selectedBid.amount).toLocaleString()}` : 'Not specified'}
+                </div>
+              </div>
+
+              {/* Contact Info if available */}
+              {(selectedBid.sub_email || selectedBid.sub_phone) && (
+                <div className="bid-detail-section">
+                  <h4><Users size={18} /> Contact Information</h4>
+                  <div className="bid-detail-contact">
+                    {selectedBid.sub_email && (
+                      <p><Mail size={16} /> {selectedBid.sub_email}</p>
+                    )}
+                    {selectedBid.sub_phone && (
+                      <p><Phone size={16} /> {selectedBid.sub_phone}</p>
+                    )}
+                    {selectedBid.sub_trade && (
+                      <p><Briefcase size={16} /> {selectedBid.sub_trade}</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Notes */}
+              {selectedBid.notes && (
+                <div className="bid-detail-section">
+                  <h4><FileText size={18} /> Notes / Description</h4>
+                  <div className="bid-detail-notes">
+                    {selectedBid.notes}
+                  </div>
+                </div>
+              )}
+
+              {/* AI Summary */}
+              {selectedBid.ai_summary && (
+                <div className="bid-detail-section ai-section">
+                  <h4><Sparkles size={18} /> AI Summary</h4>
+                  <div className="bid-detail-ai-summary">
+                    {selectedBid.ai_summary}
+                  </div>
+                </div>
+              )}
+
+              {/* Bid File */}
+              {selectedBid.bid_file_url && (
+                <div className="bid-detail-section">
+                  <h4><FileText size={18} /> Attached File</h4>
+                  <a href={selectedBid.bid_file_url} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                    <Eye size={16} />
+                    View Bid File
+                  </a>
+                </div>
+              )}
+
+              {/* Timestamps */}
+              <div className="bid-detail-section">
+                <h4><Clock size={18} /> Timeline</h4>
+                <div className="bid-detail-timestamps">
+                  <p>Submitted: {new Date(selectedBid.created_at).toLocaleString()}</p>
+                  {selectedBid.updated_at && selectedBid.updated_at !== selectedBid.created_at && (
+                    <p>Last Updated: {new Date(selectedBid.updated_at).toLocaleString()}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <select
+                className="bid-status-select"
+                value={selectedBid.status}
+                onChange={(e) => {
+                  bidsAPI.updateBidStatus(selectedBid.id, e.target.value)
+                    .then(() => {
+                      loadProject();
+                      setSelectedBid({...selectedBid, status: e.target.value});
+                    })
+                    .catch(err => alert(err.message));
+                }}
+              >
+                <option value="submitted">Submitted</option>
+                <option value="reviewed">Reviewed</option>
+                <option value="shortlisted">Shortlisted</option>
+                <option value="rejected">Rejected</option>
+                <option value="awarded">Awarded</option>
+              </select>
+              <button className="btn btn-secondary" onClick={() => setSelectedBid(null)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

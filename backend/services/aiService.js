@@ -92,34 +92,93 @@ ${bidText.substring(0, 30000)}`;
   }
 };
 
-// Compare multiple bids
+// Compare multiple bids - Uses existing data without external AI
 export const compareBids = async (bidsData) => {
-  if (!genAI) {
-    throw new Error('Google Gemini AI is not configured. Please set GEMINI_API_KEY in .env');
-  }
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    // Filter bids with valid amounts
+    const bidsWithAmounts = bidsData.filter(b => b.amount && parseFloat(b.amount) > 0);
+    const bidsWithoutAmounts = bidsData.filter(b => !b.amount || parseFloat(b.amount) <= 0);
     
-    let prompt = `Compare the following subcontractor bids for the same project. For each bid, we provide: name, price, duration, and key notes.\n\n`;
+    // Sort by amount
+    const sortedBids = [...bidsWithAmounts].sort((a, b) => parseFloat(a.amount) - parseFloat(b.amount));
     
-    bidsData.forEach((bid, index) => {
-      prompt += `Bid ${index + 1}:\n`;
-      prompt += `- Subcontractor: ${bid.sub_name || 'Unknown'}\n`;
-      prompt += `- Price: ${bid.amount ? `$${bid.amount}` : 'Not specified'}\n`;
-      prompt += `- Summary: ${bid.summary || 'No summary available'}\n\n`;
+    // Calculate statistics
+    const amounts = bidsWithAmounts.map(b => parseFloat(b.amount));
+    const lowestBid = sortedBids[0];
+    const highestBid = sortedBids[sortedBids.length - 1];
+    const avgAmount = amounts.length > 0 ? amounts.reduce((a, b) => a + b, 0) / amounts.length : 0;
+    const priceRange = amounts.length > 0 ? Math.max(...amounts) - Math.min(...amounts) : 0;
+    
+    // Build comparison text
+    let comparison = `═══════════════════════════════════════════════════════════════
+                          BID COMPARISON ANALYSIS
+═══════════════════════════════════════════════════════════════
+
+📊 OVERVIEW
+───────────────────────────────────────────────────────────────
+• Total Bids Received: ${bidsData.length}
+• Bids with Pricing: ${bidsWithAmounts.length}
+• Bids without Pricing: ${bidsWithoutAmounts.length}
+${amounts.length > 0 ? `• Price Range: $${Math.min(...amounts).toLocaleString()} - $${Math.max(...amounts).toLocaleString()}
+• Average Bid: $${avgAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+• Spread: $${priceRange.toLocaleString()} (${avgAmount > 0 ? ((priceRange / avgAmount) * 100).toFixed(1) : 0}% variance)` : ''}
+
+═══════════════════════════════════════════════════════════════
+                          BID RANKING (by Price)
+═══════════════════════════════════════════════════════════════
+`;
+    
+    // Add ranked bids
+    sortedBids.forEach((bid, index) => {
+      const priceDiff = index > 0 ? parseFloat(bid.amount) - parseFloat(lowestBid.amount) : 0;
+      const priceDiffPercent = parseFloat(lowestBid.amount) > 0 ? (priceDiff / parseFloat(lowestBid.amount) * 100).toFixed(1) : 0;
+      
+      comparison += `
+${index === 0 ? '🏆' : index === 1 ? '🥈' : index === 2 ? '🥉' : '  '} #${index + 1}. ${bid.sub_name || 'Unknown'}${bid.sub_company ? ` (${bid.sub_company})` : ''}
+   └─ Amount: $${parseFloat(bid.amount).toLocaleString()}${index > 0 ? ` (+$${priceDiff.toLocaleString()}, +${priceDiffPercent}% vs lowest)` : ' ← LOWEST BID'}
+   └─ Notes: ${bid.summary ? bid.summary.substring(0, 100) + (bid.summary.length > 100 ? '...' : '') : 'No notes provided'}
+`;
     });
     
-    prompt += `Please create a comparison analysis:
-1. Create a comparison table in text format
-2. Highlight which bid is best for: lowest cost, fastest delivery, and best overall value
-3. Mention potential risks or missing items
-4. Provide a recommendation
-
-Format the response clearly with sections.`;
+    // Add bids without amounts
+    if (bidsWithoutAmounts.length > 0) {
+      comparison += `
+───────────────────────────────────────────────────────────────
+BIDS WITHOUT PRICING (Requires follow-up)
+───────────────────────────────────────────────────────────────
+`;
+      bidsWithoutAmounts.forEach((bid) => {
+        comparison += `
+⚠️  ${bid.sub_name || 'Unknown'}${bid.sub_company ? ` (${bid.sub_company})` : ''}
+   └─ Notes: ${bid.summary ? bid.summary.substring(0, 100) + (bid.summary.length > 100 ? '...' : '') : 'No notes provided'}
+`;
+      });
+    }
     
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    return response.text();
+    // Add recommendations
+    comparison += `
+═══════════════════════════════════════════════════════════════
+                          RECOMMENDATIONS
+═══════════════════════════════════════════════════════════════
+
+💰 LOWEST COST: ${lowestBid ? `${lowestBid.sub_name || 'Unknown'} at $${parseFloat(lowestBid.amount).toLocaleString()}` : 'No pricing available'}
+
+📈 COST ANALYSIS:
+${amounts.length >= 2 ? `   • The lowest bid is ${avgAmount > 0 ? (((avgAmount - parseFloat(lowestBid.amount)) / avgAmount) * 100).toFixed(1) : 0}% below average
+   • ${priceRange > avgAmount * 0.3 ? '⚠️ Large price variance - verify scope alignment' : '✓ Prices are reasonably aligned'}` : '   • Need more bids for meaningful analysis'}
+
+📋 NEXT STEPS:
+   1. Review scope coverage for each bid
+   2. Verify inclusions/exclusions match your requirements
+   3. Check contractor references and past work
+   4. Confirm timelines align with project schedule
+${bidsWithoutAmounts.length > 0 ? `   5. Follow up with ${bidsWithoutAmounts.length} contractor(s) for pricing` : ''}
+
+═══════════════════════════════════════════════════════════════
+Generated: ${new Date().toLocaleString()}
+═══════════════════════════════════════════════════════════════`;
+    
+    return comparison;
   } catch (error) {
     throw new Error(`Failed to compare bids: ${error.message}`);
   }
