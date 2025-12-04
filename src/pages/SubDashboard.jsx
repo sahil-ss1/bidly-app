@@ -208,7 +208,13 @@ function SubDashboard() {
                     </span>
                   </h3>
                   <p className="guarantee-meta">
-                    {user.trade && <span><Briefcase size={14} /> {user.trade}</span>}
+                    {user.trade && (
+                      <span className="trades-display">
+                        <Briefcase size={14} />
+                        {user.trade.split(',').map(t => t.trim()).filter(t => t).slice(0, 3).join(', ')}
+                        {user.trade.split(',').filter(t => t.trim()).length > 3 && ` +${user.trade.split(',').filter(t => t.trim()).length - 3} more`}
+                      </span>
+                    )}
                     {user.region && <span><MapPin size={14} /> {user.region}</span>}
                   </p>
                 </div>

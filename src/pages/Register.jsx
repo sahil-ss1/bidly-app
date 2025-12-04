@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { 
   User, Mail, Lock, Phone, Building2, HardHat, Wrench, 
   UserPlus, Loader2, FileCheck, Users, ArrowRight, MapPin, Briefcase, Gift,
-  Eye, EyeOff
+  Eye, EyeOff, ChevronDown, X, Check
 } from 'lucide-react';
 import { authAPI } from '../services/api';
 import './Register.css';
@@ -44,7 +44,7 @@ function Register() {
     role: roleParam === 'sub' ? 'sub' : 'gc',
     company_name: '',
     phone: '',
-    trade: '',
+    trades: [],
     region: '',
     referral_code: referralCode,
   });
@@ -52,6 +52,30 @@ function Register() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showTradesDropdown, setShowTradesDropdown] = useState(false);
+  const tradesDropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (tradesDropdownRef.current && !tradesDropdownRef.current.contains(event.target)) {
+        setShowTradesDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleTradeToggle = (trade) => {
+    const newTrades = formData.trades.includes(trade)
+      ? formData.trades.filter(t => t !== trade)
+      : [...formData.trades, trade];
+    setFormData({ ...formData, trades: newTrades });
+  };
+
+  const removeTrade = (trade) => {
+    setFormData({ ...formData, trades: formData.trades.filter(t => t !== trade) });
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -74,7 +98,7 @@ function Register() {
       role: formData.role || 'gc',
       company_name: (formData.company_name || '').trim(),
       phone: (formData.phone || '').trim(),
-      trade: (formData.trade || '').trim(),
+      trade: formData.trades.join(', '), // Convert array to comma-separated string
       region: (formData.region || '').trim(),
     };
 
@@ -319,40 +343,72 @@ function Register() {
                     </div>
                   </div>
 
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label htmlFor="trade">Trade / Specialty *</label>
-                      <div className="input-with-icon select-wrapper">
+                  <div className="form-group">
+                    <label>Trades / Specialties * <span className="label-hint">(Select all that apply)</span></label>
+                    <div className="multi-select-container" ref={tradesDropdownRef}>
+                      <div 
+                        className="multi-select-trigger"
+                        onClick={() => setShowTradesDropdown(!showTradesDropdown)}
+                      >
                         <Briefcase size={18} className="input-icon" />
-                        <select
-                          id="trade"
-                          name="trade"
-                          value={formData.trade}
-                          onChange={handleChange}
-                          required
-                        >
-                          <option value="">Select your trade</option>
+                        <div className="selected-trades-display">
+                          {formData.trades.length === 0 ? (
+                            <span className="placeholder">Select your trades...</span>
+                          ) : (
+                            <div className="selected-trades-tags">
+                              {formData.trades.slice(0, 3).map(trade => (
+                                <span key={trade} className="trade-tag">
+                                  {trade}
+                                  <button 
+                                    type="button" 
+                                    onClick={(e) => { e.stopPropagation(); removeTrade(trade); }}
+                                  >
+                                    <X size={12} />
+                                  </button>
+                                </span>
+                              ))}
+                              {formData.trades.length > 3 && (
+                                <span className="more-trades">+{formData.trades.length - 3} more</span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <ChevronDown size={18} className={`dropdown-arrow ${showTradesDropdown ? 'open' : ''}`} />
+                      </div>
+                      
+                      {showTradesDropdown && (
+                        <div className="multi-select-dropdown">
                           {TRADE_OPTIONS.map(trade => (
-                            <option key={trade} value={trade}>{trade}</option>
+                            <div 
+                              key={trade} 
+                              className={`dropdown-option ${formData.trades.includes(trade) ? 'selected' : ''}`}
+                              onClick={() => handleTradeToggle(trade)}
+                            >
+                              <div className={`option-checkbox ${formData.trades.includes(trade) ? 'checked' : ''}`}>
+                                {formData.trades.includes(trade) && <Check size={12} />}
+                              </div>
+                              <span>{trade}</span>
+                            </div>
                           ))}
-                        </select>
-                      </div>
+                        </div>
+                      )}
                     </div>
+                    {formData.trades.length === 0 && <span className="form-hint required">Please select at least one trade</span>}
+                  </div>
 
-                    <div className="form-group">
-                      <label htmlFor="region">Service Region *</label>
-                      <div className="input-with-icon">
-                        <MapPin size={18} className="input-icon" />
-                        <input
-                          type="text"
-                          id="region"
-                          name="region"
-                          value={formData.region}
-                          onChange={handleChange}
-                          placeholder="e.g. Los Angeles, CA"
-                          required
-                        />
-                      </div>
+                  <div className="form-group">
+                    <label htmlFor="region">Service Region *</label>
+                    <div className="input-with-icon">
+                      <MapPin size={18} className="input-icon" />
+                      <input
+                        type="text"
+                        id="region"
+                        name="region"
+                        value={formData.region}
+                        onChange={handleChange}
+                        placeholder="e.g. Los Angeles, CA"
+                        required
+                      />
                     </div>
                   </div>
                 </>

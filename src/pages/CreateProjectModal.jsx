@@ -175,15 +175,24 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '??';
   };
 
+  // Helper to parse trades string into array
+  const parseSubTrades = (tradeString) => {
+    if (!tradeString) return [];
+    return tradeString.split(',').map(t => t.trim()).filter(t => t);
+  };
+
   // Auto-suggest subs based on selected trades
   const suggestedSubs = useMemo(() => {
     if (selectedTags.length === 0) return [];
-    return subcontractors.filter(sub => 
-      sub.trade && selectedTags.some(tag => 
-        sub.trade.toLowerCase().includes(tag.toLowerCase()) ||
-        tag.toLowerCase().includes(sub.trade.toLowerCase())
-      )
-    );
+    return subcontractors.filter(sub => {
+      const subTrades = parseSubTrades(sub.trade);
+      return subTrades.some(subTrade => 
+        selectedTags.some(tag => 
+          subTrade.toLowerCase().includes(tag.toLowerCase()) ||
+          tag.toLowerCase().includes(subTrade.toLowerCase())
+        )
+      );
+    });
   }, [subcontractors, selectedTags]);
 
   // Auto-select suggested subs when tags change
@@ -346,12 +355,19 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
                                   <div className="sub-details">
                                     <div className="sub-name">
                                       {sub.company_name || sub.name}
-                                      <span className="trade-badge">{sub.trade}</span>
                                       {sub.subscription_tier && sub.subscription_tier !== 'free' && (
                                         <span className={`tier-badge tier-${sub.subscription_tier}`}>
                                           <Crown size={10} />
                                           {sub.subscription_tier}
                                         </span>
+                                      )}
+                                    </div>
+                                    <div className="sub-trades">
+                                      {parseSubTrades(sub.trade).slice(0, 3).map((trade, idx) => (
+                                        <span key={idx} className="trade-badge">{trade}</span>
+                                      ))}
+                                      {parseSubTrades(sub.trade).length > 3 && (
+                                        <span className="trade-badge more">+{parseSubTrades(sub.trade).length - 3}</span>
                                       )}
                                     </div>
                                     <div className="sub-meta">
@@ -386,7 +402,6 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
                               <div className="sub-details">
                                 <div className="sub-name">
                                   {sub.company_name || sub.name}
-                                  {sub.trade && <span className="trade-badge muted">{sub.trade}</span>}
                                   {sub.subscription_tier && sub.subscription_tier !== 'free' && (
                                     <span className={`tier-badge tier-${sub.subscription_tier}`}>
                                       <Crown size={10} />
@@ -394,6 +409,16 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
                                     </span>
                                   )}
                                 </div>
+                                {sub.trade && (
+                                  <div className="sub-trades">
+                                    {parseSubTrades(sub.trade).slice(0, 3).map((trade, idx) => (
+                                      <span key={idx} className="trade-badge muted">{trade}</span>
+                                    ))}
+                                    {parseSubTrades(sub.trade).length > 3 && (
+                                      <span className="trade-badge muted more">+{parseSubTrades(sub.trade).length - 3}</span>
+                                    )}
+                                  </div>
+                                )}
                                 <div className="sub-meta">
                                   {sub.name} {sub.region && `• ${sub.region}`}
                                 </div>

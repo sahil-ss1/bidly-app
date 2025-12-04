@@ -343,7 +343,7 @@ function AdminDashboard() {
                     <td>
                       {u.role === 'sub' ? (
                         <div style={{ fontSize: '0.8125rem' }}>
-                          <div>{u.trade || '-'}</div>
+                          <div>{u.trade ? u.trade.split(',').map(t => t.trim()).filter(t => t).slice(0, 2).join(', ') + (u.trade.split(',').filter(t => t.trim()).length > 2 ? ` +${u.trade.split(',').filter(t => t.trim()).length - 2}` : '') : '-'}</div>
                           <div style={{ color: 'var(--color-text-muted)' }}>{u.region || '-'}</div>
                         </div>
                       ) : (

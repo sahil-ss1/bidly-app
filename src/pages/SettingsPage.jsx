@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Building2, ArrowLeft, User, Bell, Shield, CreditCard,
   Mail, Phone, Save, Loader2, Check, Eye, EyeOff,
-  Lock, Trash2, ExternalLink, ChevronRight, Wrench, MapPin, Crown
+  Lock, Trash2, ExternalLink, ChevronRight, Wrench, MapPin, Crown,
+  ChevronDown, X
 } from 'lucide-react';
 import { authAPI, usersAPI } from '../services/api';
 import './SettingsPage.css';
@@ -43,10 +44,34 @@ function SettingsPage() {
     email: '',
     company_name: '',
     phone: '',
-    trade: '',
+    trades: [],
     region: '',
   });
   const [saveError, setSaveError] = useState('');
+  const [showTradesDropdown, setShowTradesDropdown] = useState(false);
+  const tradesDropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (tradesDropdownRef.current && !tradesDropdownRef.current.contains(event.target)) {
+        setShowTradesDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleTradeToggle = (trade) => {
+    const newTrades = profileData.trades.includes(trade)
+      ? profileData.trades.filter(t => t !== trade)
+      : [...profileData.trades, trade];
+    setProfileData({ ...profileData, trades: newTrades });
+  };
+
+  const removeTrade = (trade) => {
+    setProfileData({ ...profileData, trades: profileData.trades.filter(t => t !== trade) });
+  };
   
   const [notifications, setNotifications] = useState({
     email_new_bid: true,
@@ -75,12 +100,16 @@ function SettingsPage() {
     try {
       const response = await authAPI.getMe();
       setUser(response.data);
+      // Parse trade string into array (trades are stored as comma-separated)
+      const tradesArray = response.data.trade 
+        ? response.data.trade.split(',').map(t => t.trim()).filter(t => t)
+        : [];
       setProfileData({
         name: response.data.name || '',
         email: response.data.email || '',
         company_name: response.data.company_name || '',
         phone: response.data.phone || '',
-        trade: response.data.trade || '',
+        trades: tradesArray,
         region: response.data.region || '',
       });
     } catch (error) {
@@ -96,7 +125,14 @@ function SettingsPage() {
     setSaveError('');
     
     try {
-      const response = await usersAPI.updateProfile(profileData);
+      // Convert trades array to comma-separated string for API
+      const dataToSave = {
+        ...profileData,
+        trade: profileData.trades.join(', '),
+      };
+      delete dataToSave.trades;
+      
+      const response = await usersAPI.updateProfile(dataToSave);
       setUser(response.data);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
@@ -303,18 +339,54 @@ function SettingsPage() {
                       </div>
 
                       <div className="form-group">
-                        <label>Your Trade/Specialty</label>
-                        <div className="input-with-icon">
-                          <Wrench size={18} className="input-icon" />
-                          <select
-                            value={profileData.trade}
-                            onChange={(e) => setProfileData({ ...profileData, trade: e.target.value })}
+                        <label>Your Trades/Specialties <span className="label-hint">(Select all that apply)</span></label>
+                        <div className="multi-select-container" ref={tradesDropdownRef}>
+                          <div 
+                            className="multi-select-trigger"
+                            onClick={() => setShowTradesDropdown(!showTradesDropdown)}
                           >
-                            <option value="">Select your trade</option>
-                            {TRADE_OPTIONS.map(trade => (
-                              <option key={trade} value={trade}>{trade}</option>
-                            ))}
-                          </select>
+                            <Wrench size={18} className="trigger-icon" />
+                            <div className="selected-trades-display">
+                              {profileData.trades.length === 0 ? (
+                                <span className="placeholder">Select your trades...</span>
+                              ) : (
+                                <div className="selected-trades-tags">
+                                  {profileData.trades.slice(0, 3).map(trade => (
+                                    <span key={trade} className="trade-tag">
+                                      {trade}
+                                      <button 
+                                        type="button" 
+                                        onClick={(e) => { e.stopPropagation(); removeTrade(trade); }}
+                                      >
+                                        <X size={12} />
+                                      </button>
+                                    </span>
+                                  ))}
+                                  {profileData.trades.length > 3 && (
+                                    <span className="more-trades">+{profileData.trades.length - 3} more</span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                            <ChevronDown size={18} className={`dropdown-arrow ${showTradesDropdown ? 'open' : ''}`} />
+                          </div>
+                          
+                          {showTradesDropdown && (
+                            <div className="multi-select-dropdown">
+                              {TRADE_OPTIONS.map(trade => (
+                                <div 
+                                  key={trade} 
+                                  className={`dropdown-option ${profileData.trades.includes(trade) ? 'selected' : ''}`}
+                                  onClick={() => handleTradeToggle(trade)}
+                                >
+                                  <div className={`option-checkbox ${profileData.trades.includes(trade) ? 'checked' : ''}`}>
+                                    {profileData.trades.includes(trade) && <Check size={12} />}
+                                  </div>
+                                  <span>{trade}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                         <span className="form-hint">This helps GCs find you for relevant projects</span>
                       </div>
