@@ -58,7 +58,7 @@ export const register = async (req, res, next) => {
         phone || null,
         role === 'sub' ? (trade || null) : null,
         role === 'sub' ? (region || null) : null,
-        role === 'admin' ? true : false, // Admins get free access
+        (role === 'admin' || role === 'gc') ? true : false, // Admins and GCs get access by default
         userReferralCode
       ]
     );
