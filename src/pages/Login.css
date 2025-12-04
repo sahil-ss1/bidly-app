@@ -204,6 +204,32 @@
 
 .input-with-icon input {
   padding-left: 44px;
+  padding-right: 44px;
+}
+
+/* Password toggle button */
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-fast);
+}
+
+.password-toggle:hover {
+  color: var(--color-text-primary);
+}
+
+.password-toggle:focus {
+  outline: none;
 }
 
 .submit-btn {

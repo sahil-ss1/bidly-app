@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Mail, Lock, LogIn, Building2, FileCheck, Users, ArrowRight, Loader2 } from 'lucide-react';
+import { Mail, Lock, LogIn, Building2, FileCheck, Users, ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react';
 import { authAPI } from '../services/api';
 import './Login.css';
 
@@ -12,6 +12,7 @@ function Login() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -142,7 +143,7 @@ function Login() {
                 <div className="input-with-icon">
                   <Lock size={18} className="input-icon" />
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     id="password"
                     name="password"
                     value={formData.password}
@@ -151,6 +152,14 @@ function Login() {
                     placeholder="Enter your password"
                     autoComplete="current-password"
                   />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowPassword(!showPassword)}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
               </div>
 

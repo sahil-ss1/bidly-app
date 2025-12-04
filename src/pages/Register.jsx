@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { 
   User, Mail, Lock, Phone, Building2, HardHat, Wrench, 
-  UserPlus, Loader2, FileCheck, Users, ArrowRight, MapPin, Briefcase, Gift
+  UserPlus, Loader2, FileCheck, Users, ArrowRight, MapPin, Briefcase, Gift,
+  Eye, EyeOff
 } from 'lucide-react';
 import { authAPI } from '../services/api';
 import './Register.css';
@@ -49,6 +50,8 @@ function Register() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -376,7 +379,7 @@ function Register() {
                   <div className="input-with-icon">
                     <Lock size={18} className="input-icon" />
                     <input
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       id="password"
                       name="password"
                       value={formData.password}
@@ -386,6 +389,14 @@ function Register() {
                       minLength={6}
                       autoComplete="new-password"
                     />
+                    <button
+                      type="button"
+                      className="password-toggle"
+                      onClick={() => setShowPassword(!showPassword)}
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
                   </div>
                 </div>
 
@@ -394,7 +405,7 @@ function Register() {
                   <div className="input-with-icon">
                     <Lock size={18} className="input-icon" />
                     <input
-                      type="password"
+                      type={showConfirmPassword ? "text" : "password"}
                       id="confirmPassword"
                       name="confirmPassword"
                       value={formData.confirmPassword}
@@ -404,6 +415,14 @@ function Register() {
                       minLength={6}
                       autoComplete="new-password"
                     />
+                    <button
+                      type="button"
+                      className="password-toggle"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      tabIndex={-1}
+                    >
+                      {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
                   </div>
                 </div>
               </div>
