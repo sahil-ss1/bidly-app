@@ -216,6 +216,7 @@ function SubDashboard() {
                       </span>
                     )}
                     {user.region && <span><MapPin size={14} /> {user.region}</span>}
+                    {user.license_number && <span><FileText size={14} /> Lic: {user.license_number}</span>}
                   </p>
                 </div>
               </div>

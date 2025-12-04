@@ -4,7 +4,7 @@ import {
   Building2, ArrowLeft, User, Bell, Shield, CreditCard,
   Mail, Phone, Save, Loader2, Check, Eye, EyeOff,
   Lock, Trash2, ExternalLink, ChevronRight, Wrench, MapPin, Crown,
-  ChevronDown, X
+  ChevronDown, X, FileText
 } from 'lucide-react';
 import { authAPI, usersAPI } from '../services/api';
 import './SettingsPage.css';
@@ -46,6 +46,7 @@ function SettingsPage() {
     phone: '',
     trades: [],
     region: '',
+    license_number: '',
   });
   const [saveError, setSaveError] = useState('');
   const [showTradesDropdown, setShowTradesDropdown] = useState(false);
@@ -111,6 +112,7 @@ function SettingsPage() {
         phone: response.data.phone || '',
         trades: tradesArray,
         region: response.data.region || '',
+        license_number: response.data.license_number || '',
       });
     } catch (error) {
       navigate('/login');
@@ -129,6 +131,7 @@ function SettingsPage() {
       const dataToSave = {
         ...profileData,
         trade: profileData.trades.join(', '),
+        license_number: profileData.license_number,
       };
       delete dataToSave.trades;
       
@@ -403,6 +406,20 @@ function SettingsPage() {
                           />
                         </div>
                         <span className="form-hint">Areas where you can take on projects</span>
+                      </div>
+
+                      <div className="form-group">
+                        <label>License Number</label>
+                        <div className="input-with-icon">
+                          <FileText size={18} className="input-icon" />
+                          <input
+                            type="text"
+                            value={profileData.license_number}
+                            onChange={(e) => setProfileData({ ...profileData, license_number: e.target.value })}
+                            placeholder="e.g., #123456"
+                          />
+                        </div>
+                        <span className="form-hint">Your contractor license number</span>
                       </div>
                     </>
                   )}

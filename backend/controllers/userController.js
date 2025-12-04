@@ -162,24 +162,25 @@ export const updateUser = async (req, res, next) => {
 export const updateMyProfile = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const { name, email, company_name, phone, trade, region } = req.body;
+    const { name, email, company_name, phone, trade, region, license_number } = req.body;
     
     // Get current user
-    const existingUser = await query('SELECT * FROM users WHERE id = ?', [userId]);
+    const existingUser = await query('SELECT * FROM users WHERE id = $1', [userId]);
     if (existingUser.length === 0) {
       return res.status(404).json({ success: false, error: 'User not found' });
     }
     
     await query(
       `UPDATE users SET 
-        name = ?, 
-        email = ?, 
-        company_name = ?,
-        phone = ?,
-        trade = ?,
-        region = ?,
+        name = $1, 
+        email = $2, 
+        company_name = $3,
+        phone = $4,
+        trade = $5,
+        region = $6,
+        license_number = $7,
         updated_at = NOW() 
-       WHERE id = ?`,
+       WHERE id = $8`,
       [
         name || existingUser[0].name, 
         email || existingUser[0].email,
@@ -187,6 +188,7 @@ export const updateMyProfile = async (req, res, next) => {
         phone !== undefined ? phone : existingUser[0].phone,
         trade !== undefined ? trade : existingUser[0].trade,
         region !== undefined ? region : existingUser[0].region,
+        license_number !== undefined ? license_number : existingUser[0].license_number,
         userId
       ]
     );

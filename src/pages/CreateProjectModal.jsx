@@ -371,7 +371,7 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
                                       )}
                                     </div>
                                     <div className="sub-meta">
-                                      {sub.name} {sub.region && `• ${sub.region}`}
+                                      {sub.name} {sub.region && `• ${sub.region}`} {sub.license_number && `• Lic: ${sub.license_number}`}
                                     </div>
                                   </div>
                                 </div>
@@ -420,7 +420,7 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
                                   </div>
                                 )}
                                 <div className="sub-meta">
-                                  {sub.name} {sub.region && `• ${sub.region}`}
+                                  {sub.name} {sub.region && `• ${sub.region}`} {sub.license_number && `• Lic: ${sub.license_number}`}
                                 </div>
                               </div>
                             </div>

@@ -23,8 +23,9 @@ CREATE TABLE IF NOT EXISTS users (
   company_name VARCHAR(255),
   phone VARCHAR(50),
   -- Subcontractor-specific fields
-  trade VARCHAR(100),
+  trade VARCHAR(255),
   region VARCHAR(255),
+  license_number VARCHAR(100),
   subscription_tier VARCHAR(20) DEFAULT 'free' CHECK (subscription_tier IN ('free', 'standard', 'pro', 'elite')),
   guaranteed_invites_per_month INT DEFAULT 0,
   invites_received_this_month INT DEFAULT 0,

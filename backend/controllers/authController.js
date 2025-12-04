@@ -10,7 +10,7 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 // Register new user
 export const register = async (req, res, next) => {
   try {
-    const { name, email, password, role, company_name, phone, trade, region, referral_code } = req.body;
+    const { name, email, password, role, company_name, phone, trade, region, license_number, referral_code } = req.body;
     
     // Validation
     if (!name || !email || !password) {
@@ -28,7 +28,7 @@ export const register = async (req, res, next) => {
     }
     
     // Check if email already exists
-    const existingUsers = await query('SELECT id FROM users WHERE email = ?', [email]);
+    const existingUsers = await query('SELECT id FROM users WHERE email = $1', [email]);
     if (existingUsers.length > 0) {
       return res.status(409).json({
         success: false,
@@ -46,9 +46,9 @@ export const register = async (req, res, next) => {
     
     // Create user with subcontractor-specific fields
     const result = await query(
-      `INSERT INTO users (name, email, password, role, company_name, phone, trade, region, bidly_access, referral_code) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-       RETURNING id, name, email, role, company_name, phone, trade, region, subscription_tier, bidly_access, referral_code`,
+      `INSERT INTO users (name, email, password, role, company_name, phone, trade, region, license_number, bidly_access, referral_code) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+       RETURNING id, name, email, role, company_name, phone, trade, region, license_number, subscription_tier, bidly_access, referral_code`,
       [
         name,
         email,
@@ -58,6 +58,7 @@ export const register = async (req, res, next) => {
         phone || null,
         role === 'sub' ? (trade || null) : null,
         role === 'sub' ? (region || null) : null,
+        role === 'sub' ? (license_number || null) : null,
         (role === 'admin' || role === 'gc') ? true : false, // Admins and GCs get access by default
         userReferralCode
       ]
@@ -108,7 +109,7 @@ export const login = async (req, res, next) => {
     
     // Find user
     const users = await query(
-      'SELECT id, name, email, password, role, company_name, phone, trade, region, subscription_tier, bidly_access FROM users WHERE email = ?',
+      'SELECT id, name, email, password, role, company_name, phone, trade, region, license_number, subscription_tier, bidly_access FROM users WHERE email = $1',
       [email]
     );
     
@@ -157,7 +158,7 @@ export const login = async (req, res, next) => {
 export const getMe = async (req, res, next) => {
   try {
     const users = await query(
-      'SELECT id, name, email, role, company_name, phone, trade, region, subscription_tier, guaranteed_invites_per_month, invites_received_this_month, bidly_access, created_at FROM users WHERE id = ?',
+      'SELECT id, name, email, role, company_name, phone, trade, region, license_number, subscription_tier, guaranteed_invites_per_month, invites_received_this_month, bidly_access, created_at FROM users WHERE id = $1',
       [req.user.id]
     );
     

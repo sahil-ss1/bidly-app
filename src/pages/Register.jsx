@@ -2,8 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { 
   User, Mail, Lock, Phone, Building2, HardHat, Wrench, 
-  UserPlus, Loader2, FileCheck, Users, ArrowRight, MapPin, Briefcase, Gift,
-  Eye, EyeOff, ChevronDown, X, Check
+  UserPlus, Loader2, FileCheck, Users, ArrowRight, MapPin, Gift,
+  Eye, EyeOff, ChevronDown, X, Check, FileText
 } from 'lucide-react';
 import { authAPI } from '../services/api';
 import './Register.css';
@@ -46,6 +46,7 @@ function Register() {
     phone: '',
     trades: [],
     region: '',
+    license_number: '',
     referral_code: referralCode,
   });
   const [error, setError] = useState('');
@@ -100,6 +101,7 @@ function Register() {
       phone: (formData.phone || '').trim(),
       trade: formData.trades.join(', '), // Convert array to comma-separated string
       region: (formData.region || '').trim(),
+      license_number: (formData.license_number || '').trim(),
     };
 
     if (!trimmedData.name) {
@@ -350,7 +352,7 @@ function Register() {
                         className="multi-select-trigger"
                         onClick={() => setShowTradesDropdown(!showTradesDropdown)}
                       >
-                        <Briefcase size={18} className="input-icon" />
+                        <Wrench size={18} className="trigger-icon" />
                         <div className="selected-trades-display">
                           {formData.trades.length === 0 ? (
                             <span className="placeholder">Select your trades...</span>
@@ -410,6 +412,22 @@ function Register() {
                         required
                       />
                     </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="license_number">License Number</label>
+                    <div className="input-with-icon">
+                      <FileText size={18} className="input-icon" />
+                      <input
+                        type="text"
+                        id="license_number"
+                        name="license_number"
+                        value={formData.license_number}
+                        onChange={handleChange}
+                        placeholder="e.g. #123456"
+                      />
+                    </div>
+                    <span className="form-hint">Your contractor license number (optional)</span>
                   </div>
                 </>
               )}
