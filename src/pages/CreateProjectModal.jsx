@@ -4,7 +4,7 @@ import {
   MapPin, Building2, Import, Loader2, Send, Sparkles, Filter, Crown,
   Mail, AlertCircle, CheckCircle, FileUp
 } from 'lucide-react';
-import { projectsAPI, usersAPI } from '../services/api';
+import { projectsAPI, usersAPI, utilsAPI } from '../services/api';
 import './CreateProjectModal.css';
 
 const QUICK_SCOPE_TEMPLATES = [
@@ -87,28 +87,13 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
     setImportedEmails([]);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
+      const response = await utilsAPI.extractEmails(file);
 
-      const response = await fetch('/api/utils/extract-emails', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to extract emails');
-      }
-
-      if (data.data.emails.length === 0) {
+      if (response.data.emails.length === 0) {
         setImportError('No email addresses found in the file');
       } else {
-        setImportedEmails(data.data.emails);
-        setSelectedImportedEmails(data.data.emails); // Select all by default
+        setImportedEmails(response.data.emails);
+        setSelectedImportedEmails(response.data.emails); // Select all by default
       }
     } catch (error) {
       setImportError(error.message || 'Failed to process file');
