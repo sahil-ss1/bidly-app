@@ -47,6 +47,9 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingSubs, setLoadingSubs] = useState(true);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importText, setImportText] = useState('');
+  const [importResults, setImportResults] = useState(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -193,6 +196,60 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
     setSelectedSubs(newSelected);
   };
 
+  // Import list functionality
+  const handleImportFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target.result;
+      setImportText(text);
+      processImportText(text);
+    };
+    reader.readAsText(file);
+    e.target.value = ''; // Reset input
+  };
+
+  const processImportText = (text) => {
+    // Parse emails from text (supports CSV, newline-separated, comma-separated)
+    const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+    const foundEmails = text.match(emailRegex) || [];
+    const uniqueEmails = [...new Set(foundEmails.map(e => e.toLowerCase()))];
+
+    // Match emails with existing subcontractors
+    const matchedSubs = subcontractors.filter(sub => 
+      uniqueEmails.includes(sub.email?.toLowerCase())
+    );
+    const matchedIds = matchedSubs.map(s => s.id);
+    const unmatchedEmails = uniqueEmails.filter(email => 
+      !subcontractors.some(sub => sub.email?.toLowerCase() === email)
+    );
+
+    setImportResults({
+      totalFound: uniqueEmails.length,
+      matched: matchedSubs,
+      unmatched: unmatchedEmails
+    });
+  };
+
+  const handleApplyImport = () => {
+    if (importResults?.matched) {
+      const matchedIds = importResults.matched.map(s => s.id);
+      const newSelected = [...new Set([...selectedSubs, ...matchedIds])];
+      setSelectedSubs(newSelected);
+    }
+    setShowImportModal(false);
+    setImportText('');
+    setImportResults(null);
+  };
+
+  const handleCloseImport = () => {
+    setShowImportModal(false);
+    setImportText('');
+    setImportResults(null);
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -288,8 +345,8 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
                     <label>
                       Select Subcontractors <span className="count">({selectedSubs.length})</span>
                     </label>
-                    <button type="button" className="import-btn">
-                      <Plus size={14} />
+                    <button type="button" className="import-btn" onClick={() => setShowImportModal(true)}>
+                      <Import size={14} />
                       Import List
                     </button>
                   </div>
@@ -466,6 +523,120 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
             </button>
           </div>
         </form>
+
+        {/* Import List Modal */}
+        {showImportModal && (
+          <div className="import-modal-overlay" onClick={handleCloseImport}>
+            <div className="import-modal" onClick={e => e.stopPropagation()}>
+              <div className="import-modal-header">
+                <h3>Import Subcontractor List</h3>
+                <button className="import-close-btn" onClick={handleCloseImport}>
+                  <X size={18} />
+                </button>
+              </div>
+              
+              <div className="import-modal-body">
+                <p className="import-hint">
+                  Upload a CSV/TXT file or paste emails below. We'll match them with registered subcontractors.
+                </p>
+                
+                <div className="import-upload-section">
+                  <input
+                    id="import-file-input"
+                    type="file"
+                    accept=".csv,.txt"
+                    onChange={handleImportFile}
+                    style={{ display: 'none' }}
+                  />
+                  <button 
+                    type="button" 
+                    className="import-upload-btn"
+                    onClick={() => document.getElementById('import-file-input').click()}
+                  >
+                    <Upload size={16} />
+                    Upload File
+                  </button>
+                  <span className="import-or">or</span>
+                </div>
+
+                <textarea
+                  className="import-textarea"
+                  placeholder="Paste emails here (one per line or comma-separated)&#10;&#10;Example:&#10;john@example.com&#10;jane@contractor.com, mike@builder.com"
+                  value={importText}
+                  onChange={(e) => {
+                    setImportText(e.target.value);
+                    if (e.target.value.trim()) {
+                      processImportText(e.target.value);
+                    } else {
+                      setImportResults(null);
+                    }
+                  }}
+                  rows={6}
+                />
+
+                {importResults && (
+                  <div className="import-results">
+                    <div className="import-summary">
+                      <span className="import-stat success">
+                        <Check size={14} />
+                        {importResults.matched.length} matched
+                      </span>
+                      {importResults.unmatched.length > 0 && (
+                        <span className="import-stat warning">
+                          <Info size={14} />
+                          {importResults.unmatched.length} not found
+                        </span>
+                      )}
+                    </div>
+                    
+                    {importResults.matched.length > 0 && (
+                      <div className="import-matched-list">
+                        <label>Will be selected:</label>
+                        {importResults.matched.map(sub => (
+                          <div key={sub.id} className="import-matched-item">
+                            <Check size={12} />
+                            <span>{sub.company_name || sub.name}</span>
+                            <span className="import-email">{sub.email}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {importResults.unmatched.length > 0 && (
+                      <div className="import-unmatched-list">
+                        <label>Not registered:</label>
+                        {importResults.unmatched.slice(0, 5).map(email => (
+                          <div key={email} className="import-unmatched-item">
+                            <X size={12} />
+                            <span>{email}</span>
+                          </div>
+                        ))}
+                        {importResults.unmatched.length > 5 && (
+                          <span className="import-more">+{importResults.unmatched.length - 5} more</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="import-modal-footer">
+                <button type="button" className="btn-cancel" onClick={handleCloseImport}>
+                  Cancel
+                </button>
+                <button 
+                  type="button" 
+                  className="btn-import-apply"
+                  onClick={handleApplyImport}
+                  disabled={!importResults?.matched?.length}
+                >
+                  <Check size={16} />
+                  Select {importResults?.matched?.length || 0} Subcontractors
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
