@@ -166,30 +166,5 @@ export const referralsAPI = {
   getLeaderboard: () => apiCall('/referrals/leaderboard'),
 };
 
-// Utils API
-export const utilsAPI = {
-  extractEmails: async (file) => {
-    const token = localStorage.getItem('token');
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    const response = await fetch(`${API_BASE_URL}/utils/extract-emails`, {
-      method: 'POST',
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
-      body: formData,
-    });
-    
-    const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.error || 'Failed to extract emails');
-    }
-    
-    return data;
-  },
-};
-
 export default apiCall;
 
