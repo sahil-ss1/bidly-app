@@ -6,9 +6,9 @@ export const submitBid = async (req, res, next) => {
     const { id } = req.params;
     const { amount, notes, bid_file_url } = req.body;
     
-    // Verify project access - allow pending or accepted invitations
+    // Verify project access - allow pending, viewed, or accepted invitations (no need to accept first)
     const invitations = await query(
-      'SELECT * FROM project_sub_invitations WHERE project_id = ? AND (sub_id = ? OR invite_email = ?) AND status IN ("pending", "accepted")',
+      "SELECT * FROM project_sub_invitations WHERE project_id = ? AND (sub_id = ? OR invite_email = ?) AND status IN ('pending', 'viewed', 'accepted')",
       [id, req.user.id, req.user.email]
     );
     
@@ -99,7 +99,7 @@ export const updateBidStatus = async (req, res, next) => {
     // If awarded, update project status
     if (status === 'awarded') {
       await query(
-        'UPDATE projects SET status = "awarded", updated_at = NOW() WHERE id = ?',
+        "UPDATE projects SET status = 'awarded', updated_at = NOW() WHERE id = ?",
         [bids[0].project_id]
       );
     }

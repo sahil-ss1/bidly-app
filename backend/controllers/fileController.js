@@ -88,7 +88,7 @@ export const uploadBidFile = async (req, res, next) => {
     
     // Verify project access - allow pending, viewed, or accepted invitations
     const invitations = await query(
-      'SELECT * FROM project_sub_invitations WHERE project_id = ? AND (sub_id = ? OR invite_email = ?) AND status IN ("pending", "viewed", "accepted")',
+      "SELECT * FROM project_sub_invitations WHERE project_id = ? AND (sub_id = ? OR invite_email = ?) AND status IN ('pending', 'viewed', 'accepted')",
       [id, req.user.id, req.user.email]
     );
     

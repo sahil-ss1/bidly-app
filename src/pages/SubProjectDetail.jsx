@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { 
   ArrowLeft, MapPin, Calendar, FileText, Eye, Sparkles, 
-  DollarSign, MessageSquare, Upload, CheckCircle, Loader2, Send, XCircle, ThumbsUp
+  DollarSign, MessageSquare, Upload, CheckCircle, Loader2, Send
 } from 'lucide-react';
 import { subProjectsAPI, bidsAPI } from '../services/api';
 import './ProjectDetail.css';
@@ -15,14 +15,12 @@ function SubProjectDetail() {
   const [showBidForm, setShowBidForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [responding, setResponding] = useState(false);
   const [bidData, setBidData] = useState({
     amount: '',
     notes: '',
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const [myBid, setMyBid] = useState(null);
-  const [invitationStatus, setInvitationStatus] = useState('pending');
 
   useEffect(() => {
     loadProject();
@@ -32,7 +30,6 @@ function SubProjectDetail() {
     try {
       const response = await subProjectsAPI.getSubProject(id);
       setProject(response.data);
-      setInvitationStatus(response.data.invitation_status || 'viewed');
       
       if (response.data.my_bid) {
         setMyBid(response.data.my_bid);
@@ -42,21 +39,6 @@ function SubProjectDetail() {
       navigate('/sub/dashboard');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleRespondToInvitation = async (response) => {
-    setResponding(true);
-    try {
-      await subProjectsAPI.respondToInvitation(id, response);
-      setInvitationStatus(response);
-      if (response === 'declined') {
-        navigate('/sub/dashboard');
-      }
-    } catch (error) {
-      alert(error.message || 'Failed to respond to invitation');
-    } finally {
-      setResponding(false);
     }
   };
 
@@ -71,7 +53,8 @@ function SubProjectDetail() {
     formData.append('file', selectedFile);
 
     try {
-      const response = await fetch(`/api/bids/project/${id}/upload`, {
+      const API_BASE = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${API_BASE}/api/bids/project/${id}/upload`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -161,50 +144,6 @@ function SubProjectDetail() {
           )}
         </div>
 
-        {/* Invitation Response Section */}
-        {!myBid && (invitationStatus === 'pending' || invitationStatus === 'viewed') && (
-          <div className="invitation-response-card" style={{ marginBottom: 'var(--spacing-lg)' }}>
-            <h3>
-              <ThumbsUp size={20} />
-              Respond to Invitation
-            </h3>
-            <p>You've been invited to bid on this project. Accept to start preparing your bid, or decline if you're not interested.</p>
-            <div className="invitation-actions" style={{ display: 'flex', gap: 'var(--spacing-md)', marginTop: 'var(--spacing-md)' }}>
-              <button 
-                className="btn btn-primary"
-                onClick={() => handleRespondToInvitation('accepted')}
-                disabled={responding}
-              >
-                {responding ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle size={18} />}
-                Accept Invitation
-              </button>
-              <button 
-                className="btn btn-secondary"
-                onClick={() => handleRespondToInvitation('declined')}
-                disabled={responding}
-              >
-                {responding ? <Loader2 size={18} className="animate-spin" /> : <XCircle size={18} />}
-                Decline
-              </button>
-            </div>
-          </div>
-        )}
-
-        {invitationStatus === 'accepted' && !myBid && (
-          <div className="invitation-accepted-banner" style={{ 
-            background: 'var(--color-primary-subtle)', 
-            padding: 'var(--spacing-md)', 
-            borderRadius: 'var(--radius-md)',
-            marginBottom: 'var(--spacing-lg)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--spacing-sm)',
-            color: 'var(--color-primary-dark)'
-          }}>
-            <CheckCircle size={18} />
-            <span>You accepted this invitation. You can now submit your bid below.</span>
-          </div>
-        )}
 
         {/* AI Plan Summary */}
         {project.ai_plan_summary && (
