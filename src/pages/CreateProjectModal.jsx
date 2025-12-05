@@ -50,6 +50,8 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
   const [showImportModal, setShowImportModal] = useState(false);
   const [importText, setImportText] = useState('');
   const [importResults, setImportResults] = useState(null);
+  const [selectedUnmatchedEmails, setSelectedUnmatchedEmails] = useState([]);
+  const [pendingInviteEmails, setPendingInviteEmails] = useState([]);
 
   useEffect(() => {
     if (isOpen) {
@@ -141,6 +143,15 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
         }
       }
 
+      // Send invitations to pending (unregistered) emails
+      for (const email of pendingInviteEmails) {
+        try {
+          await projectsAPI.inviteSub(projectId, { invite_email: email });
+        } catch (err) {
+          console.error('Failed to invite unregistered:', email, err);
+        }
+      }
+
       // Upload files if any
       for (const file of selectedFiles) {
         const fileData = new FormData();
@@ -164,6 +175,7 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
       setSelectedTags([]);
       setSelectedSubs([]);
       setSelectedFiles([]);
+      setPendingInviteEmails([]);
 
       onProjectCreated(response.data);
       onClose();
@@ -221,7 +233,6 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
     const matchedSubs = subcontractors.filter(sub => 
       uniqueEmails.includes(sub.email?.toLowerCase())
     );
-    const matchedIds = matchedSubs.map(s => s.id);
     const unmatchedEmails = uniqueEmails.filter(email => 
       !subcontractors.some(sub => sub.email?.toLowerCase() === email)
     );
@@ -231,6 +242,26 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
       matched: matchedSubs,
       unmatched: unmatchedEmails
     });
+    // Auto-select all unmatched emails for invite
+    setSelectedUnmatchedEmails(unmatchedEmails);
+  };
+
+  const handleToggleUnmatchedEmail = (email) => {
+    if (selectedUnmatchedEmails.includes(email)) {
+      setSelectedUnmatchedEmails(selectedUnmatchedEmails.filter(e => e !== email));
+    } else {
+      setSelectedUnmatchedEmails([...selectedUnmatchedEmails, email]);
+    }
+  };
+
+  const handleSelectAllUnmatched = () => {
+    if (importResults?.unmatched) {
+      setSelectedUnmatchedEmails([...importResults.unmatched]);
+    }
+  };
+
+  const handleClearUnmatched = () => {
+    setSelectedUnmatchedEmails([]);
   };
 
   const handleApplyImport = () => {
@@ -239,15 +270,25 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
       const newSelected = [...new Set([...selectedSubs, ...matchedIds])];
       setSelectedSubs(newSelected);
     }
+    // Store unmatched emails that were selected for inviting
+    if (selectedUnmatchedEmails.length > 0) {
+      setPendingInviteEmails([...new Set([...pendingInviteEmails, ...selectedUnmatchedEmails])]);
+    }
     setShowImportModal(false);
     setImportText('');
     setImportResults(null);
+    setSelectedUnmatchedEmails([]);
   };
 
   const handleCloseImport = () => {
     setShowImportModal(false);
     setImportText('');
     setImportResults(null);
+    setSelectedUnmatchedEmails([]);
+  };
+
+  const handleRemovePendingInvite = (email) => {
+    setPendingInviteEmails(pendingInviteEmails.filter(e => e !== email));
   };
 
   if (!isOpen) return null;
@@ -464,6 +505,26 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
                       </>
                     )}
                   </div>
+
+                  {/* Pending Invite Emails */}
+                  {pendingInviteEmails.length > 0 && (
+                    <div className="pending-invites">
+                      <label>
+                        <Send size={14} />
+                        Pending Invites ({pendingInviteEmails.length})
+                      </label>
+                      <div className="pending-invites-list">
+                        {pendingInviteEmails.map(email => (
+                          <div key={email} className="pending-invite-item">
+                            <span>{email}</span>
+                            <button type="button" onClick={() => handleRemovePendingInvite(email)}>
+                              <X size={12} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Upload Plans */}
@@ -517,7 +578,7 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
               ) : (
                 <>
                   <Send size={18} />
-                  Publish & Invite {selectedSubs.length > 0 && `(${selectedSubs.length})`}
+                  Publish & Invite {(selectedSubs.length + pendingInviteEmails.length) > 0 && `(${selectedSubs.length + pendingInviteEmails.length})`}
                 </>
               )}
             </button>
@@ -579,43 +640,70 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
                     <div className="import-summary">
                       <span className="import-stat success">
                         <Check size={14} />
-                        {importResults.matched.length} matched
+                        {importResults.matched.length} registered
                       </span>
                       {importResults.unmatched.length > 0 && (
                         <span className="import-stat warning">
-                          <Info size={14} />
-                          {importResults.unmatched.length} not found
+                          <Send size={14} />
+                          {selectedUnmatchedEmails.length}/{importResults.unmatched.length} to invite
                         </span>
                       )}
                     </div>
-                    
-                    {importResults.matched.length > 0 && (
-                      <div className="import-matched-list">
-                        <label>Will be selected:</label>
-                        {importResults.matched.map(sub => (
-                          <div key={sub.id} className="import-matched-item">
-                            <Check size={12} />
-                            <span>{sub.company_name || sub.name}</span>
-                            <span className="import-email">{sub.email}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
 
-                    {importResults.unmatched.length > 0 && (
-                      <div className="import-unmatched-list">
-                        <label>Not registered:</label>
-                        {importResults.unmatched.slice(0, 5).map(email => (
-                          <div key={email} className="import-unmatched-item">
-                            <X size={12} />
-                            <span>{email}</span>
+                    <div className="import-lists-container">
+                      {importResults.matched.length > 0 && (
+                        <div className="import-matched-list">
+                          <label>
+                            <Check size={12} />
+                            Registered ({importResults.matched.length}) - Will be selected
+                          </label>
+                          <div className="import-list-scroll">
+                            {importResults.matched.map(sub => (
+                              <div key={sub.id} className="import-matched-item">
+                                <div className="import-checkbox checked">
+                                  <Check size={10} />
+                                </div>
+                                <span className="import-name">{sub.company_name || sub.name}</span>
+                                <span className="import-email">{sub.email}</span>
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                        {importResults.unmatched.length > 5 && (
-                          <span className="import-more">+{importResults.unmatched.length - 5} more</span>
-                        )}
-                      </div>
-                    )}
+                        </div>
+                      )}
+
+                      {importResults.unmatched.length > 0 && (
+                        <div className="import-unmatched-list">
+                          <div className="import-list-header">
+                            <label>
+                              <Send size={12} />
+                              Not Registered ({importResults.unmatched.length}) - Send Invite?
+                            </label>
+                            <div className="import-list-actions">
+                              <button type="button" onClick={handleSelectAllUnmatched}>
+                                Select All
+                              </button>
+                              <button type="button" onClick={handleClearUnmatched}>
+                                Clear
+                              </button>
+                            </div>
+                          </div>
+                          <div className="import-list-scroll">
+                            {importResults.unmatched.map(email => (
+                              <div 
+                                key={email} 
+                                className={`import-unmatched-item ${selectedUnmatchedEmails.includes(email) ? 'selected' : ''}`}
+                                onClick={() => handleToggleUnmatchedEmail(email)}
+                              >
+                                <div className={`import-checkbox ${selectedUnmatchedEmails.includes(email) ? 'checked' : ''}`}>
+                                  {selectedUnmatchedEmails.includes(email) && <Check size={10} />}
+                                </div>
+                                <span className="import-email-full">{email}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -628,10 +716,10 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
                   type="button" 
                   className="btn-import-apply"
                   onClick={handleApplyImport}
-                  disabled={!importResults?.matched?.length}
+                  disabled={!importResults?.matched?.length && !selectedUnmatchedEmails.length}
                 >
                   <Check size={16} />
-                  Select {importResults?.matched?.length || 0} Subcontractors
+                  Apply ({importResults?.matched?.length || 0} registered{selectedUnmatchedEmails.length > 0 ? ` + ${selectedUnmatchedEmails.length} invites` : ''})
                 </button>
               </div>
             </div>
