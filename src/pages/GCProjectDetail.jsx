@@ -603,6 +603,21 @@ function GCProjectDetail() {
                       
                       {bid.notes && <p className="bid-notes">{bid.notes}</p>}
                       
+                      {bid.bid_file_url && (
+                        <div className="bid-file-section">
+                          <a 
+                            href={bid.bid_file_url} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="bid-file-link"
+                          >
+                            <FileText size={18} />
+                            <span>View Bid Document</span>
+                            <Eye size={16} />
+                          </a>
+                        </div>
+                      )}
+                      
                       {bid.ai_summary && (
                         <div className="bid-ai-summary">
                           <strong>
@@ -611,13 +626,6 @@ function GCProjectDetail() {
                           </strong>
                           <p>{bid.ai_summary}</p>
                         </div>
-                      )}
-                      
-                      {bid.bid_file_url && (
-                        <a href={bid.bid_file_url} target="_blank" rel="noopener noreferrer" className="file-action-btn" style={{ marginBottom: 'var(--spacing-md)', display: 'inline-flex', alignItems: 'center' }}>
-                          <Eye size={16} style={{ marginRight: '6px' }} />
-                          View Bid File
-                        </a>
                       )}
                       
                       <div className="bid-card-footer">
