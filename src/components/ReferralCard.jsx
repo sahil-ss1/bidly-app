@@ -126,11 +126,12 @@ function ReferralCard({ userRole }) {
               readOnly 
             />
             <button 
-              className="copy-btn"
+              className={`copy-btn ${copied ? 'copied' : ''}`}
               onClick={copyLink}
               title="Copy link"
             >
-              {copied ? <Check size={18} /> : <Copy size={18} />}
+              {copied ? <Check size={16} /> : <Copy size={16} />}
+              <span>{copied ? 'Copied!' : 'Copy'}</span>
             </button>
           </div>
           <span className="referral-code">Code: <strong>{stats?.referral_code}</strong></span>

@@ -142,21 +142,33 @@
 }
 
 .copy-btn {
-  width: 44px;
-  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
+  padding: 0 16px;
+  height: 44px;
   background: var(--color-primary);
   border: none;
   border-radius: var(--radius-md);
   color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
   cursor: pointer;
   transition: all var(--transition-fast);
+  white-space: nowrap;
 }
 
 .copy-btn:hover {
   background: var(--color-primary-dark);
+}
+
+.copy-btn.copied {
+  background: #22c55e;
+}
+
+.copy-btn span {
+  font-size: 0.8125rem;
 }
 
 .referral-code {

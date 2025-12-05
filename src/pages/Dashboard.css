@@ -1231,3 +1231,184 @@
     padding: var(--spacing-md);
   }
 }
+
+/* ===== Fallback Dashboard (Basic) ===== */
+.dashboard {
+  min-height: 100vh;
+  background: var(--color-background);
+}
+
+.dashboard > .dashboard-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.dashboard > .dashboard-nav .nav-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.dashboard > .dashboard-nav .nav-logo svg {
+  color: var(--color-primary);
+}
+
+.dashboard > .dashboard-nav .nav-logo h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.dashboard > .dashboard-nav .nav-user {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.dashboard > .dashboard-nav .nav-user > svg {
+  color: var(--color-text-muted);
+}
+
+.dashboard > .dashboard-nav .nav-user span {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.dashboard > .dashboard-nav .nav-user button {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 10px 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.dashboard > .dashboard-nav .nav-user button:hover {
+  background: var(--color-background);
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+.dashboard > .dashboard-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+}
+
+.dashboard > .dashboard-content h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-lg);
+}
+
+.dashboard > .dashboard-content .user-info {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+}
+
+.dashboard > .dashboard-content .user-info p {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: 0 0 var(--spacing-md) 0;
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+}
+
+.dashboard > .dashboard-content .user-info p:last-child {
+  margin-bottom: 0;
+}
+
+.dashboard > .dashboard-content .user-info p svg {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.dashboard > .dashboard-content .user-info p strong {
+  color: var(--color-text-primary);
+  margin-right: var(--spacing-sm);
+}
+
+.dashboard > .dashboard-content .user-info .access-active,
+.dashboard > .dashboard-content .user-info .access-inactive {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin-left: var(--spacing-sm);
+}
+
+.dashboard > .dashboard-content .user-info .access-active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.dashboard > .dashboard-content .user-info .access-active svg {
+  color: #22c55e;
+}
+
+.dashboard > .dashboard-content .user-info .access-inactive {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.dashboard > .dashboard-content .user-info .access-inactive svg {
+  color: #ef4444;
+}
+
+.dashboard > .dashboard-content .upgrade-banner {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 1px solid #fbbf24;
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  text-align: center;
+}
+
+.dashboard > .dashboard-content .upgrade-banner h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #92400e;
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.dashboard > .dashboard-content .upgrade-banner p {
+  font-size: 0.9375rem;
+  color: #a16207;
+  margin: 0 0 var(--spacing-lg) 0;
+}
+
+.dashboard > .dashboard-content .upgrade-banner button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 12px 24px;
+  background: #f59e0b;
+  border: none;
+  border-radius: var(--radius-md);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.dashboard > .dashboard-content .upgrade-banner button:hover {
+  background: #d97706;
+  transform: translateY(-1px);
+}
