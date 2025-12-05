@@ -110,6 +110,11 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
     e.preventDefault();
     setLoading(true);
 
+    // Track invitation results
+    let inviteSuccessCount = 0;
+    let inviteFailCount = 0;
+    const failedEmails = [];
+
     try {
       // Build description with templates and tags
       let fullDescription = formData.description;
@@ -137,8 +142,11 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
         if (sub?.email) {
           try {
             await projectsAPI.inviteSub(projectId, { invite_email: sub.email });
+            inviteSuccessCount++;
           } catch (err) {
             console.error('Failed to invite:', sub.email, err);
+            inviteFailCount++;
+            failedEmails.push(sub.email);
           }
         }
       }
@@ -147,17 +155,21 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
       for (const email of pendingInviteEmails) {
         try {
           await projectsAPI.inviteSub(projectId, { invite_email: email });
+          inviteSuccessCount++;
         } catch (err) {
           console.error('Failed to invite unregistered:', email, err);
+          inviteFailCount++;
+          failedEmails.push(email);
         }
       }
 
-      // Upload files if any
+      // Upload files if any - Use the correct API URL
+      const API_BASE = import.meta.env.VITE_API_URL || '';
       for (const file of selectedFiles) {
         const fileData = new FormData();
         fileData.append('file', file);
         try {
-          await fetch(`/api/projects/gc/${projectId}/plans`, {
+          await fetch(`${API_BASE}/api/projects/gc/${projectId}/plans`, {
             method: 'POST',
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -176,6 +188,11 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
       setSelectedSubs([]);
       setSelectedFiles([]);
       setPendingInviteEmails([]);
+
+      // Show feedback if some invitations failed
+      if (inviteFailCount > 0) {
+        alert(`Project created! ${inviteSuccessCount} invitation(s) sent successfully. ${inviteFailCount} failed: ${failedEmails.join(', ')}`);
+      }
 
       onProjectCreated(response.data);
       onClose();

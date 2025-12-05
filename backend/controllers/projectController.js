@@ -243,13 +243,13 @@ export const inviteSubcontractor = async (req, res, next) => {
     let subUser = null;
     
     if (invite_email) {
-      const subs = await query('SELECT * FROM users WHERE email = ? AND role = "sub"', [invite_email]);
+      const subs = await query("SELECT * FROM users WHERE email = ? AND role = 'sub'", [invite_email]);
       if (subs.length > 0) {
         subUser = subs[0];
         actualSubId = subUser.id;
       }
     } else if (sub_id) {
-      const subs = await query('SELECT * FROM users WHERE id = ? AND role = "sub"', [sub_id]);
+      const subs = await query("SELECT * FROM users WHERE id = ? AND role = 'sub'", [sub_id]);
       if (subs.length > 0) {
         subUser = subs[0];
       }
