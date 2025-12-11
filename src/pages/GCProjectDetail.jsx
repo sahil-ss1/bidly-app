@@ -4,7 +4,7 @@ import {
   ArrowLeft, MapPin, Calendar, FileText, Users, Mail, 
   Plus, Upload, Send, Eye, Sparkles, BarChart3, X,
   Clock, Building2, Loader2, RefreshCw, CheckCircle, XCircle, EyeIcon,
-  Target, Shield, TrendingUp, Edit, Save, LayoutDashboard
+  Edit, Save, LayoutDashboard
 } from 'lucide-react';
 import { projectsAPI, bidsAPI } from '../services/api';
 import './ProjectDetail.css';
@@ -331,68 +331,6 @@ function GCProjectDetail() {
                     {project.bids?.filter(b => b.status === 'awarded').length || 0}
                   </div>
                   <div className="overview-stat-label">Awarded</div>
-                </div>
-              </div>
-
-              {/* Guaranteed Bids Status */}
-              <div className="guaranteed-bids-card">
-                <div className="guaranteed-bids-header">
-                  <div className="guaranteed-bids-icon">
-                    <Shield size={24} />
-                  </div>
-                  <div>
-                    <h3>Guaranteed Bids</h3>
-                    <p>Bidly ensures you receive a minimum number of quality bids</p>
-                  </div>
-                </div>
-                <div className="guaranteed-bids-content">
-                  <div className="guaranteed-bids-progress">
-                    <div className="guaranteed-progress-header">
-                      <span>
-                        <Target size={16} />
-                        Bid Progress
-                      </span>
-                      <span className="guaranteed-count">
-                        {project.bids?.length || 0} / {project.guaranteed_min_bids || 3} bids
-                      </span>
-                    </div>
-                    <div className="guaranteed-progress-bar">
-                      <div 
-                        className="guaranteed-progress-fill"
-                        style={{ 
-                          width: `${Math.min(100, ((project.bids?.length || 0) / (project.guaranteed_min_bids || 3)) * 100)}%` 
-                        }}
-                      />
-                    </div>
-                    <div className="guaranteed-progress-footer">
-                      {(project.bids?.length || 0) >= (project.guaranteed_min_bids || 3) ? (
-                        <span className="guarantee-achieved">
-                          <CheckCircle size={14} /> Minimum guarantee achieved!
-                        </span>
-                      ) : (
-                        <span className="guarantee-pending">
-                          <TrendingUp size={14} /> 
-                          {(project.guaranteed_min_bids || 3) - (project.bids?.length || 0)} more bid(s) guaranteed
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="guaranteed-bids-stats">
-                    <div className="gb-stat">
-                      <span className="gb-stat-value">{project.invitations?.filter(i => i.status === 'viewed').length || 0}</span>
-                      <span className="gb-stat-label">Viewed</span>
-                    </div>
-                    <div className="gb-stat">
-                      <span className="gb-stat-value">{project.invitations?.filter(i => i.status === 'accepted').length || 0}</span>
-                      <span className="gb-stat-label">Accepted</span>
-                    </div>
-                    <div className="gb-stat">
-                      <span className="gb-stat-value">
-                        {((project.bids?.length || 0) / Math.max(1, project.invitations?.length || 1) * 100).toFixed(0)}%
-                      </span>
-                      <span className="gb-stat-label">Response Rate</span>
-                    </div>
-                  </div>
                 </div>
               </div>
 
