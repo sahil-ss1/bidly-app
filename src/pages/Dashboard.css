@@ -347,6 +347,11 @@
   gap: var(--spacing-lg);
 }
 
+/* Add spacing after pending invitations section */
+#invitations-section + .projects-grid {
+  margin-bottom: var(--spacing-2xl);
+}
+
 .project-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
