@@ -9,7 +9,7 @@ import {
 import { authAPI, projectsAPI } from '../services/api';
 import CreateProjectModal from './CreateProjectModal';
 import ReferralCard from '../components/ReferralCard';
-import BidBreakdownByTrade from '../components/BidBreakdownByTrade';
+import { bidsAPI } from '../services/api';
 import './Dashboard.css';
 
 function GCDashboard() {
@@ -21,6 +21,7 @@ function GCDashboard() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [projectBidBreakdowns, setProjectBidBreakdowns] = useState({});
 
   useEffect(() => {
     const loadData = async () => {
@@ -43,8 +44,12 @@ function GCDashboard() {
         try {
           const projectsResponse = await projectsAPI.getGCProjects();
           if (projectsResponse && projectsResponse.data) {
-            setProjects(Array.isArray(projectsResponse.data) ? projectsResponse.data : []);
+            const projectsData = Array.isArray(projectsResponse.data) ? projectsResponse.data : [];
+            setProjects(projectsData);
             setError('');
+            
+            // Load bid breakdowns for each project
+            loadBidBreakdowns(projectsData);
           } else {
             setProjects([]);
           }
@@ -68,16 +73,76 @@ function GCDashboard() {
   }, [navigate]);
 
   const handleProjectCreated = (newProject) => {
-    setProjects([newProject, ...projects]);
+    const updatedProjects = [newProject, ...projects];
+    setProjects(updatedProjects);
     setError('');
+    // Load bid breakdowns for all projects including the new one
+    loadBidBreakdowns(updatedProjects);
+  };
+
+  const parseTradesFromDescription = (description) => {
+    if (!description) return [];
+    const tradesMatch = description.match(/Trades:\s*([^\n]+)/i);
+    if (tradesMatch) {
+      return tradesMatch[1]
+        .split(',')
+        .map(t => t.trim())
+        .filter(t => t.length > 0)
+        .map(t => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase());
+    }
+    return [];
+  };
+
+  const matchBidToTrade = (bid, projectTrades) => {
+    if (projectTrades.length === 1) {
+      return projectTrades[0];
+    }
+    if (bid.sub_trade) {
+      const normalizedSubTrade = bid.sub_trade.charAt(0).toUpperCase() + bid.sub_trade.slice(1).toLowerCase();
+      const match = projectTrades.find(trade => 
+        trade.toLowerCase() === normalizedSubTrade.toLowerCase() ||
+        trade.toLowerCase().includes(normalizedSubTrade.toLowerCase()) ||
+        normalizedSubTrade.toLowerCase().includes(trade.toLowerCase())
+      );
+      if (match) return match;
+    }
+    return projectTrades[0] || 'Other';
+  };
+
+  const loadBidBreakdowns = async (projectsList) => {
+    const breakdowns = {};
+    
+    for (const project of projectsList) {
+      try {
+        const bidsResponse = await bidsAPI.getProjectBids(project.id);
+        const bids = bidsResponse.data || [];
+        const projectTrades = parseTradesFromDescription(project.description);
+        
+        if (projectTrades.length === 0) continue;
+        
+        const tradeCounts = {};
+        for (const bid of bids) {
+          const trade = matchBidToTrade(bid, projectTrades);
+          tradeCounts[trade] = (tradeCounts[trade] || 0) + 1;
+        }
+        
+        breakdowns[project.id] = tradeCounts;
+      } catch (err) {
+        console.error(`Failed to load bids for project ${project.id}:`, err);
+      }
+    }
+    
+    setProjectBidBreakdowns(breakdowns);
   };
 
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
       const projectsResponse = await projectsAPI.getGCProjects();
-      setProjects(projectsResponse.data || []);
+      const projectsData = projectsResponse.data || [];
+      setProjects(projectsData);
       setError('');
+      loadBidBreakdowns(projectsData);
     } catch (err) {
       setError(err.message || 'Failed to refresh projects');
     } finally {
@@ -264,9 +329,6 @@ function GCDashboard() {
             </div>
           </div>
 
-          {/* Bid Breakdown by Trade */}
-          <BidBreakdownByTrade />
-
           {/* Projects Section - Now right after stats */}
           <div className="projects-section">
             <div className="section-header">
@@ -334,6 +396,19 @@ function GCDashboard() {
                         </div>
                       )}
                     </div>
+                    
+                    {/* Bid Breakdown by Trade */}
+                    {projectBidBreakdowns[project.id] && Object.keys(projectBidBreakdowns[project.id]).length > 0 && (
+                      <div className="project-bid-breakdown">
+                        {Object.entries(projectBidBreakdowns[project.id])
+                          .sort((a, b) => b[1] - a[1])
+                          .map(([trade, count]) => (
+                            <span key={trade} className="bid-breakdown-badge">
+                              {trade} {count} {count === 1 ? 'bid' : 'bids'}
+                            </span>
+                          ))}
+                      </div>
+                    )}
                     
                     <div className="project-stats">
                       <div className="project-stat">

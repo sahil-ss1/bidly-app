@@ -408,6 +408,28 @@
   flex-shrink: 0;
 }
 
+.project-bid-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-sm);
+  background: var(--color-background);
+  border-radius: var(--radius-md);
+}
+
+.bid-breakdown-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .project-stats {
   display: flex;
   gap: var(--spacing-lg);
