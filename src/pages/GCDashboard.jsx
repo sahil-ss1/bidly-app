@@ -9,6 +9,7 @@ import {
 import { authAPI, projectsAPI } from '../services/api';
 import CreateProjectModal from './CreateProjectModal';
 import ReferralCard from '../components/ReferralCard';
+import BidBreakdownByTrade from '../components/BidBreakdownByTrade';
 import './Dashboard.css';
 
 function GCDashboard() {
@@ -263,116 +264,101 @@ function GCDashboard() {
             </div>
           </div>
 
-          {/* Dashboard Sections Container - Reorderable for mobile */}
-          <div className="dashboard-sections">
-            {/* New Project Section - Mobile First */}
-            {user.bidly_access && (
-              <div className="new-project-section-mobile">
-                <button 
-                  className="btn btn-primary btn-new-project-mobile"
-                  onClick={() => setShowCreateModal(true)}
-                >
-                  <Plus size={18} />
-                  New Project
-                </button>
-              </div>
-            )}
+          {/* Bid Breakdown by Trade */}
+          <BidBreakdownByTrade />
 
-            {/* Referral Card - Growth Flywheel */}
-            <div className="referral-card-wrapper">
-              <ReferralCard userRole="gc" />
+          {/* Projects Section - Now right after stats */}
+          <div className="projects-section">
+            <div className="section-header">
+              <h2 className="section-title">My Projects</h2>
+              <div className="section-actions">
+                {user.bidly_access && (
+                  <button 
+                    className="btn btn-primary"
+                    onClick={() => setShowCreateModal(true)}
+                  >
+                    <Plus size={18} />
+                    New Project
+                  </button>
+                )}
+              </div>
             </div>
 
-            {/* Projects Section */}
-            <div className="projects-section-wrapper">
-              <div className="section-header">
-                <h2 className="section-title">My Projects</h2>
-                <div className="section-actions section-actions-desktop">
-                  {user.bidly_access && (
-                    <button 
-                      className="btn btn-primary"
-                      onClick={() => setShowCreateModal(true)}
-                    >
-                      <Plus size={18} />
-                      New Project
-                    </button>
-                  )}
+            {projects.length === 0 && !error ? (
+              <div className="empty-state">
+                <div className="empty-state-icon">
+                  <FolderKanban size={32} />
                 </div>
+                <h3>No projects yet</h3>
+                <p>Create your first project to start receiving bids from subcontractors.</p>
+                {user.bidly_access && (
+                  <button 
+                    className="btn btn-primary"
+                    onClick={() => setShowCreateModal(true)}
+                  >
+                    <Plus size={18} />
+                    Create Your First Project
+                  </button>
+                )}
               </div>
-
-              {projects.length === 0 && !error ? (
-                <div className="empty-state">
-                  <div className="empty-state-icon">
-                    <FolderKanban size={32} />
-                  </div>
-                  <h3>No projects yet</h3>
-                  <p>Create your first project to start receiving bids from subcontractors.</p>
-                  {user.bidly_access && (
-                    <button 
-                      className="btn btn-primary"
-                      onClick={() => setShowCreateModal(true)}
-                    >
-                      <Plus size={18} />
-                      Create Your First Project
-                    </button>
-                  )}
-                </div>
-              ) : (
-                <div className="projects-grid stagger-children">
-                  {projects.map((project) => (
-                    <div 
-                      key={project.id} 
-                      className="project-card"
-                      onClick={() => navigate(`/gc/projects/${project.id}`)}
-                    >
-                      <div className="project-card-header">
-                        <h3>{project.title}</h3>
-                        <span className={`status-badge status-${project.status}`}>
-                          {project.status}
-                        </span>
-                      </div>
-                      
-                      {project.description && (
-                        <p className="project-description">{project.description}</p>
+            ) : (
+              <div className="projects-grid stagger-children">
+                {projects.map((project) => (
+                  <div 
+                    key={project.id} 
+                    className="project-card"
+                    onClick={() => navigate(`/gc/projects/${project.id}`)}
+                  >
+                    <div className="project-card-header">
+                      <h3>{project.title}</h3>
+                      <span className={`status-badge status-${project.status}`}>
+                        {project.status}
+                      </span>
+                    </div>
+                    
+                    {project.description && (
+                      <p className="project-description">{project.description}</p>
+                    )}
+                    
+                    <div className="project-meta">
+                      {project.location && (
+                        <div className="project-meta-item">
+                          <MapPin size={14} />
+                          <span>{project.location}</span>
+                        </div>
                       )}
-                      
-                      <div className="project-meta">
-                        {project.location && (
-                          <div className="project-meta-item">
-                            <MapPin size={14} />
-                            <span>{project.location}</span>
-                          </div>
-                        )}
-                        {project.bid_deadline && (
-                          <div className="project-meta-item">
-                            <Calendar size={14} />
-                            <span>Due: {new Date(project.bid_deadline).toLocaleDateString()}</span>
-                          </div>
-                        )}
+                      {project.bid_deadline && (
+                        <div className="project-meta-item">
+                          <Calendar size={14} />
+                          <span>Due: {new Date(project.bid_deadline).toLocaleDateString()}</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="project-stats">
+                      <div className="project-stat">
+                        <span className="project-stat-value">{project.bids_count || 0}</span>
+                        <span className="project-stat-label">Bids</span>
                       </div>
-                      
-                      <div className="project-stats">
-                        <div className="project-stat">
-                          <span className="project-stat-value">{project.bids_count || 0}</span>
-                          <span className="project-stat-label">Bids</span>
-                        </div>
-                        <div className="project-stat">
-                          <span className="project-stat-value">{project.invitations_count || 0}</span>
-                          <span className="project-stat-label">Invites</span>
-                        </div>
-                        <div className="project-stat">
-                          <span className="project-stat-value">
-                            {new Date(project.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                          </span>
-                          <span className="project-stat-label">Created</span>
-                        </div>
+                      <div className="project-stat">
+                        <span className="project-stat-value">{project.invitations_count || 0}</span>
+                        <span className="project-stat-label">Invites</span>
+                      </div>
+                      <div className="project-stat">
+                        <span className="project-stat-value">
+                          {new Date(project.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </span>
+                        <span className="project-stat-label">Created</span>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
+
+          {/* Referral Card - Growth Flywheel */}
+          <ReferralCard userRole="gc" />
         </div>
       </main>
 

@@ -1179,29 +1179,170 @@
   border-left: 3px solid var(--color-success);
 }
 
-/* Dashboard Sections Container */
-.dashboard-sections {
+/* Celebration Styles */
+.celebration-section {
+  animation: celebration-pulse 2s ease-in-out infinite;
+}
+
+.celebration-icon {
+  color: #f59e0b;
+  animation: celebration-bounce 1s ease-in-out infinite;
+}
+
+.celebration-sparkle {
+  color: #fbbf24;
+  animation: celebration-sparkle 1.5s ease-in-out infinite;
+  margin-left: -8px;
+}
+
+.celebration-badge {
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+  animation: celebration-glow 2s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+}
+
+.new-invitation-celebration {
+  position: relative;
+  border: 2px solid #f59e0b;
+  background: linear-gradient(135deg, #fff 0%, #fef3c7 100%);
+  animation: celebration-card-entrance 0.6s ease-out;
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+}
+
+.new-invitation-celebration::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #f59e0b, #fbbf24, #f59e0b);
+  border-radius: var(--radius-lg);
+  z-index: -1;
+  animation: celebration-border 2s linear infinite;
+  background-size: 200% 200%;
+}
+
+.celebration-overlay {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
   display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-xs);
+  z-index: 10;
+  pointer-events: none;
 }
 
-/* New Project Section - Mobile */
-.new-project-section-mobile {
-  display: none;
+.celebration-overlay svg {
+  color: #f59e0b;
+  animation: celebration-float 2s ease-in-out infinite;
 }
 
-.new-project-section-mobile .btn-new-project-mobile {
-  width: 100%;
-  justify-content: center;
-  padding: var(--spacing-md) var(--spacing-lg);
-  font-size: 1rem;
-  font-weight: 600;
+.celebration-overlay svg:nth-child(2) {
+  animation-delay: 0.5s;
 }
 
-/* Desktop: Hide mobile new project button, show desktop one */
-.section-actions-desktop {
-  display: flex;
+.status-badge.new-badge {
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+  color: white;
+  font-weight: 700;
+  animation: celebration-badge-pulse 1.5s ease-in-out infinite;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+}
+
+@keyframes celebration-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+@keyframes celebration-bounce {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-5px) rotate(-10deg);
+  }
+  75% {
+    transform: translateY(-5px) rotate(10deg);
+  }
+}
+
+@keyframes celebration-sparkle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2) rotate(180deg);
+  }
+}
+
+@keyframes celebration-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.8);
+  }
+}
+
+@keyframes celebration-card-entrance {
+  0% {
+    transform: scale(0.9) translateY(-20px);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05) translateY(5px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes celebration-border {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes celebration-float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-8px) rotate(-15deg);
+  }
+  75% {
+    transform: translateY(-8px) rotate(15deg);
+  }
+}
+
+@keyframes celebration-badge-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.9);
+  }
+}
+
+/* Projects Section */
+.projects-section {
+  margin-bottom: var(--spacing-xl);
 }
 
 /* Mobile responsive */
@@ -1241,7 +1382,8 @@
   }
   
   .stats-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
   }
   
   .projects-grid {
@@ -1254,24 +1396,6 @@
   
   .top-header {
     padding: var(--spacing-md);
-  }
-
-  /* Mobile: Show mobile new project button, hide desktop one */
-  .new-project-section-mobile {
-    display: block;
-    order: 1;
-  }
-
-  .section-actions-desktop {
-    display: none;
-  }
-
-  .referral-card-wrapper {
-    order: 2;
-  }
-
-  .projects-section-wrapper {
-    order: 3;
   }
 }
 

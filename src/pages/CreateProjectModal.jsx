@@ -4,6 +4,7 @@ import {
   MapPin, Building2, Import, Loader2, Send, Sparkles, Filter, Crown
 } from 'lucide-react';
 import { projectsAPI, usersAPI } from '../services/api';
+import SubcontractorInfoModal from '../components/SubcontractorInfoModal';
 import './CreateProjectModal.css';
 
 const QUICK_SCOPE_TEMPLATES = [
@@ -52,6 +53,8 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
   const [importResults, setImportResults] = useState(null);
   const [selectedUnmatchedEmails, setSelectedUnmatchedEmails] = useState([]);
   const [pendingInviteEmails, setPendingInviteEmails] = useState([]);
+  const [showSubInfoModal, setShowSubInfoModal] = useState(false);
+  const [selectedSubInfoId, setSelectedSubInfoId] = useState(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -308,6 +311,12 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
     setPendingInviteEmails(pendingInviteEmails.filter(e => e !== email));
   };
 
+  const handleSubInfoClick = (e, subId) => {
+    e.stopPropagation(); // Prevent toggling selection when clicking info icon
+    setSelectedSubInfoId(subId);
+    setShowSubInfoModal(true);
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -474,8 +483,18 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
                                     </div>
                                   </div>
                                 </div>
-                                <div className={`sub-checkbox ${selectedSubs.includes(sub.id) ? 'checked' : ''}`}>
-                                  {selectedSubs.includes(sub.id) && <Check size={14} />}
+                                <div className="sub-actions">
+                                  <button
+                                    type="button"
+                                    className="sub-info-btn"
+                                    onClick={(e) => handleSubInfoClick(e, sub.id)}
+                                    title="View details"
+                                  >
+                                    <Info size={16} />
+                                  </button>
+                                  <div className={`sub-checkbox ${selectedSubs.includes(sub.id) ? 'checked' : ''}`}>
+                                    {selectedSubs.includes(sub.id) && <Check size={14} />}
+                                  </div>
                                 </div>
                               </div>
                             ))}
@@ -514,8 +533,18 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
                                 </div>
                               </div>
                             </div>
-                            <div className={`sub-checkbox ${selectedSubs.includes(sub.id) ? 'checked' : ''}`}>
-                              {selectedSubs.includes(sub.id) && <Check size={14} />}
+                            <div className="sub-actions">
+                              <button
+                                type="button"
+                                className="sub-info-btn"
+                                onClick={(e) => handleSubInfoClick(e, sub.id)}
+                                title="View details"
+                              >
+                                <Info size={16} />
+                              </button>
+                              <div className={`sub-checkbox ${selectedSubs.includes(sub.id) ? 'checked' : ''}`}>
+                                {selectedSubs.includes(sub.id) && <Check size={14} />}
+                              </div>
                             </div>
                           </div>
                         ))}
@@ -590,12 +619,14 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
               {loading ? (
                 <>
                   <Loader2 size={18} className="animate-spin" />
-                  Publishing...
+                  Sending Invites...
                 </>
               ) : (
                 <>
                   <Send size={18} />
-                  Publish & Invite {(selectedSubs.length + pendingInviteEmails.length) > 0 && `(${selectedSubs.length + pendingInviteEmails.length})`}
+                  {(selectedSubs.length + pendingInviteEmails.length) > 0 
+                    ? `Send and Invite (${selectedSubs.length + pendingInviteEmails.length})`
+                    : 'Send and Invite'}
                 </>
               )}
             </button>
@@ -742,10 +773,21 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
             </div>
           </div>
         )}
+
+        {/* Subcontractor Info Modal */}
+        <SubcontractorInfoModal
+          isOpen={showSubInfoModal}
+          onClose={() => {
+            setShowSubInfoModal(false);
+            setSelectedSubInfoId(null);
+          }}
+          subcontractorId={selectedSubInfoId}
+        />
       </div>
     </div>
   );
 }
 
 export default CreateProjectModal;
+
 

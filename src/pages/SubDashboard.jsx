@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Building2, FolderKanban, FileText, Clock, MapPin, 
   RefreshCw, LogOut, Menu, LayoutDashboard, Settings, 
   HelpCircle, Inbox, Calendar, Mail, CheckCircle, Crown, Briefcase, Target,
-  TrendingUp, Zap, ExternalLink, Award, Gift
+  TrendingUp, Zap, ExternalLink, Award, Gift, PartyPopper, Sparkles
 } from 'lucide-react';
 import { authAPI, subProjectsAPI } from '../services/api';
 import ReferralCard from '../components/ReferralCard';
+import Confetti from '../components/Confetti';
+import Fireworks from '../components/Fireworks';
 import './Dashboard.css';
 
 function SubDashboard() {
@@ -17,6 +19,8 @@ function SubDashboard() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const previousPendingCount = useRef(0);
 
   useEffect(() => {
     const loadData = async () => {
@@ -38,7 +42,17 @@ function SubDashboard() {
 
         try {
           const projectsResponse = await subProjectsAPI.getSubProjects();
-          setProjects(projectsResponse.data || []);
+          const newProjects = projectsResponse.data || [];
+          setProjects(newProjects);
+          
+          // Check for new invitations and trigger celebration
+          const newPendingCount = newProjects.filter(p => p.invitation_status === 'pending').length;
+          // Trigger celebration if we have new invitations
+          if (newPendingCount > previousPendingCount.current) {
+            setShowCelebration(true);
+            setTimeout(() => setShowCelebration(false), 3000);
+          }
+          previousPendingCount.current = newPendingCount;
         } catch (err) {
           console.error('Failed to load projects:', err);
         }
@@ -57,7 +71,16 @@ function SubDashboard() {
     setRefreshing(true);
     try {
       const projectsResponse = await subProjectsAPI.getSubProjects();
-      setProjects(projectsResponse.data || []);
+      const newProjects = projectsResponse.data || [];
+      setProjects(newProjects);
+      
+      // Check for new invitations and trigger celebration
+      const newPendingCount = newProjects.filter(p => p.invitation_status === 'pending').length;
+      if (newPendingCount > previousPendingCount.current && previousPendingCount.current >= 0) {
+        setShowCelebration(true);
+        setTimeout(() => setShowCelebration(false), 3000);
+      }
+      previousPendingCount.current = newPendingCount;
     } catch (err) {
       console.error('Failed to refresh:', err);
     } finally {
@@ -78,6 +101,17 @@ function SubDashboard() {
   const pendingInvitations = projects.filter(p => p.invitation_status === 'pending').length;
   const acceptedInvitations = projects.filter(p => p.invitation_status === 'accepted').length;
   const submittedBids = projects.filter(p => p.my_bid).length;
+  
+  // Sort invitations: pending (new) first, then viewed
+  const sortedPendingInvitations = projects
+    .filter(p => !p.my_bid && (p.invitation_status === 'pending' || p.invitation_status === 'viewed'))
+    .sort((a, b) => {
+      // Pending comes before viewed
+      if (a.invitation_status === 'pending' && b.invitation_status !== 'pending') return -1;
+      if (a.invitation_status !== 'pending' && b.invitation_status === 'pending') return 1;
+      // Then sort by created date (newest first)
+      return new Date(b.created_at) - new Date(a.created_at);
+    });
 
   if (loading) {
     return (
@@ -94,6 +128,9 @@ function SubDashboard() {
 
   return (
     <div className="dashboard-layout">
+      {/* Celebration Effects */}
+      <Confetti trigger={showCelebration} />
+      <Fireworks trigger={showCelebration} />
       {/* Sidebar overlay for mobile */}
       <div 
         className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`} 
@@ -296,11 +333,20 @@ function SubDashboard() {
           <ReferralCard userRole="sub" />
 
           {/* Pending Invitations Section */}
-          <div id="invitations-section" className="section-header">
+          <div id="invitations-section" className={`section-header ${pendingInvitations > 0 ? 'celebration-section' : ''}`}>
             <h2 className="section-title">
-              <Inbox size={22} />
+              {pendingInvitations > 0 ? (
+                <>
+                  <PartyPopper size={22} className="celebration-icon" />
+                  <Sparkles size={18} className="celebration-sparkle" />
+                </>
+              ) : (
+                <Inbox size={22} />
+              )}
               Pending Invitations
-              {pendingInvitations > 0 && <span className="section-badge">{pendingInvitations}</span>}
+              {pendingInvitations > 0 && (
+                <span className="section-badge celebration-badge">{pendingInvitations}</span>
+              )}
             </h2>
             <div className="section-actions">
               <button 
@@ -314,7 +360,7 @@ function SubDashboard() {
             </div>
           </div>
 
-          {projects.filter(p => !p.my_bid && (p.invitation_status === 'pending' || p.invitation_status === 'viewed')).length === 0 ? (
+          {sortedPendingInvitations.length === 0 ? (
             <div className="empty-state small">
               <div className="empty-state-icon">
                 <Inbox size={28} />
@@ -324,16 +370,22 @@ function SubDashboard() {
             </div>
           ) : (
             <div className="projects-grid stagger-children">
-              {projects.filter(p => !p.my_bid && (p.invitation_status === 'pending' || p.invitation_status === 'viewed')).map((project) => (
+              {sortedPendingInvitations.map((project) => (
                 <div
                   key={project.id}
-                  className={`project-card invitation-${project.invitation_status}`}
+                  className={`project-card invitation-${project.invitation_status} ${project.invitation_status === 'pending' ? 'new-invitation-celebration' : ''}`}
                   onClick={() => navigate(`/sub/projects/${project.id}`)}
                 >
+                  {project.invitation_status === 'pending' && (
+                    <div className="celebration-overlay">
+                      <PartyPopper size={24} />
+                      <Sparkles size={20} />
+                    </div>
+                  )}
                   <div className="project-card-header">
                     <h3>{project.title}</h3>
-                    <span className={`status-badge status-${project.invitation_status}`}>
-                      {project.invitation_status === 'viewed' ? 'Viewed' : 'New'}
+                    <span className={`status-badge status-${project.invitation_status} ${project.invitation_status === 'pending' ? 'new-badge' : ''}`}>
+                      {project.invitation_status === 'viewed' ? 'Viewed' : 'NEW'}
                     </span>
                   </div>
                   

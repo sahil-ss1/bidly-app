@@ -1,0 +1,127 @@
+.bid-breakdown-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.bid-breakdown-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.bid-breakdown-header h3 {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.bid-breakdown-header svg {
+  color: var(--color-primary);
+}
+
+.bid-breakdown-loading,
+.bid-breakdown-error {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg);
+  color: var(--color-text-muted);
+  justify-content: center;
+}
+
+.bid-breakdown-error {
+  color: var(--color-error);
+}
+
+.bid-breakdown-empty {
+  padding: var(--spacing-lg);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.bid-breakdown-empty p {
+  margin: 0;
+  font-size: 0.9375rem;
+}
+
+.bid-breakdown-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.bid-breakdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-background);
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast);
+}
+
+.bid-breakdown-item:hover {
+  background: var(--color-primary-subtle);
+}
+
+.bid-breakdown-trade {
+  flex: 1;
+  min-width: 0;
+}
+
+.trade-name {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-size: 0.9375rem;
+}
+
+.bid-breakdown-count {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.count-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.count-label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-transform: lowercase;
+}
+
+.bid-breakdown-footer {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+}
+
+.total-bids {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 768px) {
+  .bid-breakdown-card {
+    padding: var(--spacing-md);
+  }
+
+  .bid-breakdown-item {
+    padding: var(--spacing-sm);
+  }
+}
+

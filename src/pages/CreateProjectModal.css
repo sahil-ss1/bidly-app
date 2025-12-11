@@ -346,6 +346,32 @@
   color: var(--color-text-muted);
 }
 
+.sub-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
+.sub-info-btn {
+  padding: 6px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.sub-info-btn:hover {
+  background: var(--color-background);
+  color: var(--color-primary);
+}
+
 .sub-checkbox {
   width: 20px;
   height: 20px;

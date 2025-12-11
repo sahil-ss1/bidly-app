@@ -89,7 +89,7 @@ export const getProject = async (req, res, next) => {
     
     // Get bids
     const bids = await query(
-      `SELECT b.*, u.name as sub_name, u.company_name as sub_company, u.email as sub_email,
+      `SELECT b.*, u.name as sub_name, u.company_name as sub_company, u.email as sub_email, u.trade as sub_trade,
               ai.summary_text as ai_summary, ai.meta as ai_meta
        FROM bids b
        JOIN users u ON b.sub_id = u.id
