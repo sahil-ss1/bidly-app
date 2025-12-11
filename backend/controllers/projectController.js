@@ -435,7 +435,13 @@ export const getSubProject = async (req, res, next) => {
       );
     }
     
-    const projects = await query('SELECT * FROM projects WHERE id = ?', [id]);
+    const projects = await query(
+      `SELECT p.*, u.name as gc_name, u.company_name as gc_company
+       FROM projects p
+       JOIN users u ON p.gc_id = u.id
+       WHERE p.id = ?`,
+      [id]
+    );
     if (projects.length === 0) {
       return res.status(404).json({
         success: false,

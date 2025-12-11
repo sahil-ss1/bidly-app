@@ -48,7 +48,9 @@ function SubDashboard() {
           // Check for new invitations and trigger celebration
           const newPendingCount = newProjects.filter(p => p.invitation_status === 'pending').length;
           // Trigger celebration if we have new invitations
-          if (newPendingCount > previousPendingCount.current) {
+          // On initial load (previousPendingCount is 0), show celebration if there are any pending
+          // On refresh, show celebration if count increased
+          if (newPendingCount > 0 && (previousPendingCount.current === 0 || newPendingCount > previousPendingCount.current)) {
             setShowCelebration(true);
             setTimeout(() => setShowCelebration(false), 3000);
           }
@@ -383,7 +385,17 @@ function SubDashboard() {
                     </div>
                   )}
                   <div className="project-card-header">
-                    <h3>{project.title}</h3>
+                    <div>
+                      <h3>{project.title}</h3>
+                      {/* Prominent GC Info */}
+                      {(project.gc_company || project.gc_name) && (
+                        <div className="project-gc-info">
+                          <Building2 size={16} />
+                          <span className="gc-label">From:</span>
+                          <span className="gc-name">{project.gc_company || project.gc_name}</span>
+                        </div>
+                      )}
+                    </div>
                     <span className={`status-badge status-${project.invitation_status} ${project.invitation_status === 'pending' ? 'new-badge' : ''}`}>
                       {project.invitation_status === 'viewed' ? 'Viewed' : 'NEW'}
                     </span>
@@ -404,12 +416,6 @@ function SubDashboard() {
                       <div className="project-meta-item">
                         <Calendar size={14} />
                         <span>Due: {new Date(project.bid_deadline).toLocaleDateString()}</span>
-                      </div>
-                    )}
-                    {project.gc_name && (
-                      <div className="project-meta-item">
-                        <Building2 size={14} />
-                        <span>From: {project.gc_name}</span>
                       </div>
                     )}
                   </div>

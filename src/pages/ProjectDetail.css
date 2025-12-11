@@ -1009,3 +1009,90 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Selected Files List */
+.selected-files-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-sm);
+}
+
+.selected-file-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+}
+
+.selected-file-item svg {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.selected-file-item span {
+  flex: 1;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.remove-file-btn {
+  padding: 4px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.remove-file-btn:hover {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+.form-hint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: var(--spacing-xs);
+}
+
+/* GC Info Header */
+.project-gc-info-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: var(--spacing-sm) 0;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, var(--color-primary-subtle) 0%, #d1fae5 100%);
+  border-radius: var(--radius-md);
+  width: fit-content;
+  border: 1px solid var(--color-primary);
+}
+
+.project-gc-info-header svg {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.gc-label {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.gc-name-large {
+  font-size: 0.9375rem;
+  color: var(--color-primary);
+  font-weight: 700;
+}
