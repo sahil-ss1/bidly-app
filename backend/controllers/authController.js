@@ -10,7 +10,12 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 // Register new user
 export const register = async (req, res, next) => {
   try {
-    const { name, email, password, role, company_name, phone, trade, region, referral_code } = req.body;
+    const { 
+      name, email, password, role, company_name, phone, trade, region, referral_code,
+      // New subcontractor fields
+      ca_licensed, ca_license_number, need_entity_help, need_insurance_help, 
+      need_licensing_help, insurance_type, has_general_liability, general_liability_amount
+    } = req.body;
     
     // Validation
     if (!name || !email || !password) {
@@ -46,9 +51,15 @@ export const register = async (req, res, next) => {
     
     // Create user with subcontractor-specific fields
     const result = await query(
-      `INSERT INTO users (name, email, password, role, company_name, phone, trade, region, bidly_access, referral_code) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-       RETURNING id, name, email, role, company_name, phone, trade, region, subscription_tier, bidly_access, referral_code`,
+      `INSERT INTO users (
+        name, email, password, role, company_name, phone, trade, region, bidly_access, referral_code,
+        ca_licensed, ca_license_number, need_entity_help, need_insurance_help, 
+        need_licensing_help, insurance_type, has_general_liability, general_liability_amount
+      ) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       RETURNING id, name, email, role, company_name, phone, trade, region, subscription_tier, bidly_access, referral_code,
+                 ca_licensed, ca_license_number, need_entity_help, need_insurance_help, 
+                 need_licensing_help, insurance_type, has_general_liability, general_liability_amount`,
       [
         name,
         email,
@@ -59,7 +70,16 @@ export const register = async (req, res, next) => {
         role === 'sub' ? (trade || null) : null,
         role === 'sub' ? (region || null) : null,
         (role === 'admin' || role === 'gc') ? true : false, // Admins and GCs get access by default
-        userReferralCode
+        userReferralCode,
+        // New subcontractor fields (only for subs)
+        role === 'sub' ? (ca_licensed || null) : null,
+        role === 'sub' ? (ca_license_number || null) : null,
+        role === 'sub' ? (need_entity_help || null) : null,
+        role === 'sub' ? (need_insurance_help || null) : null,
+        role === 'sub' ? (need_licensing_help || null) : null,
+        role === 'sub' ? (insurance_type || null) : null,
+        role === 'sub' ? (has_general_liability || null) : null,
+        role === 'sub' ? (general_liability_amount || null) : null,
       ]
     );
     

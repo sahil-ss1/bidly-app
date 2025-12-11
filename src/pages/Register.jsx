@@ -3,7 +3,7 @@ import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { 
   User, Mail, Lock, Phone, Building2, HardHat, Wrench, 
   UserPlus, Loader2, FileCheck, Users, ArrowRight, MapPin, Briefcase, Gift,
-  Eye, EyeOff
+  Eye, EyeOff, Shield, FileText, HelpCircle, Award
 } from 'lucide-react';
 import { authAPI } from '../services/api';
 import './Register.css';
@@ -47,6 +47,15 @@ function Register() {
     trade: '',
     region: '',
     referral_code: referralCode,
+    // New subcontractor fields
+    ca_licensed: '',
+    ca_license_number: '',
+    need_entity_help: '',
+    need_insurance_help: '',
+    need_licensing_help: '',
+    insurance_type: '',
+    has_general_liability: '',
+    general_liability_amount: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -76,6 +85,15 @@ function Register() {
       phone: (formData.phone || '').trim(),
       trade: (formData.trade || '').trim(),
       region: (formData.region || '').trim(),
+      // New subcontractor fields
+      ca_licensed: formData.ca_licensed || '',
+      ca_license_number: (formData.ca_license_number || '').trim(),
+      need_entity_help: formData.need_entity_help || '',
+      need_insurance_help: formData.need_insurance_help || '',
+      need_licensing_help: formData.need_licensing_help || '',
+      insurance_type: (formData.insurance_type || '').trim(),
+      has_general_liability: formData.has_general_liability || '',
+      general_liability_amount: (formData.general_liability_amount || '').trim(),
     };
 
     if (!trimmedData.name) {
@@ -355,6 +373,196 @@ function Register() {
                       </div>
                     </div>
                   </div>
+
+                  {/* California License Section */}
+                  <div className="form-group">
+                    <label htmlFor="ca_licensed">Are you licensed in the state of California?</label>
+                    <div className="radio-group">
+                      <label className="radio-option">
+                        <input
+                          type="radio"
+                          name="ca_licensed"
+                          value="yes"
+                          checked={formData.ca_licensed === 'yes'}
+                          onChange={handleChange}
+                        />
+                        <span>Yes</span>
+                      </label>
+                      <label className="radio-option">
+                        <input
+                          type="radio"
+                          name="ca_licensed"
+                          value="no"
+                          checked={formData.ca_licensed === 'no'}
+                          onChange={handleChange}
+                        />
+                        <span>No</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {formData.ca_licensed === 'yes' && (
+                    <div className="form-group">
+                      <label htmlFor="ca_license_number">California License Number</label>
+                      <div className="input-with-icon">
+                        <Award size={18} className="input-icon" />
+                        <input
+                          type="text"
+                          id="ca_license_number"
+                          name="ca_license_number"
+                          value={formData.ca_license_number}
+                          onChange={handleChange}
+                          placeholder="Enter your CA license number"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Help Needed Section */}
+                  <div className="form-section-divider">
+                    <span>Additional Support</span>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="need_entity_help">Do you need help creating an entity?</label>
+                    <div className="radio-group">
+                      <label className="radio-option">
+                        <input
+                          type="radio"
+                          name="need_entity_help"
+                          value="yes"
+                          checked={formData.need_entity_help === 'yes'}
+                          onChange={handleChange}
+                        />
+                        <span>Yes</span>
+                      </label>
+                      <label className="radio-option">
+                        <input
+                          type="radio"
+                          name="need_entity_help"
+                          value="no"
+                          checked={formData.need_entity_help === 'no'}
+                          onChange={handleChange}
+                        />
+                        <span>No</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="need_insurance_help">Do you need help with insurance?</label>
+                    <div className="radio-group">
+                      <label className="radio-option">
+                        <input
+                          type="radio"
+                          name="need_insurance_help"
+                          value="yes"
+                          checked={formData.need_insurance_help === 'yes'}
+                          onChange={handleChange}
+                        />
+                        <span>Yes</span>
+                      </label>
+                      <label className="radio-option">
+                        <input
+                          type="radio"
+                          name="need_insurance_help"
+                          value="no"
+                          checked={formData.need_insurance_help === 'no'}
+                          onChange={handleChange}
+                        />
+                        <span>No</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="need_licensing_help">Do you need help with licensing?</label>
+                    <div className="radio-group">
+                      <label className="radio-option">
+                        <input
+                          type="radio"
+                          name="need_licensing_help"
+                          value="yes"
+                          checked={formData.need_licensing_help === 'yes'}
+                          onChange={handleChange}
+                        />
+                        <span>Yes</span>
+                      </label>
+                      <label className="radio-option">
+                        <input
+                          type="radio"
+                          name="need_licensing_help"
+                          value="no"
+                          checked={formData.need_licensing_help === 'no'}
+                          onChange={handleChange}
+                        />
+                        <span>No</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Insurance Details Section */}
+                  <div className="form-section-divider">
+                    <span>Insurance Information</span>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="insurance_type">What type of insurance do you have?</label>
+                    <div className="input-with-icon">
+                      <Shield size={18} className="input-icon" />
+                      <input
+                        type="text"
+                        id="insurance_type"
+                        name="insurance_type"
+                        value={formData.insurance_type}
+                        onChange={handleChange}
+                        placeholder="e.g. General Liability, Workers' Comp, etc."
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="has_general_liability">Do you have general liability insurance?</label>
+                    <div className="radio-group">
+                      <label className="radio-option">
+                        <input
+                          type="radio"
+                          name="has_general_liability"
+                          value="yes"
+                          checked={formData.has_general_liability === 'yes'}
+                          onChange={handleChange}
+                        />
+                        <span>Yes</span>
+                      </label>
+                      <label className="radio-option">
+                        <input
+                          type="radio"
+                          name="has_general_liability"
+                          value="no"
+                          checked={formData.has_general_liability === 'no'}
+                          onChange={handleChange}
+                        />
+                        <span>No</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {formData.has_general_liability === 'yes' && (
+                    <div className="form-group">
+                      <label htmlFor="general_liability_amount">General Liability Coverage Amount</label>
+                      <div className="input-with-icon">
+                        <FileText size={18} className="input-icon" />
+                        <input
+                          type="text"
+                          id="general_liability_amount"
+                          name="general_liability_amount"
+                          value={formData.general_liability_amount}
+                          onChange={handleChange}
+                          placeholder="e.g. $1,000,000"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
 

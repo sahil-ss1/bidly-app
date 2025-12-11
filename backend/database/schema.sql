@@ -25,6 +25,15 @@ CREATE TABLE IF NOT EXISTS users (
   -- Subcontractor-specific fields
   trade VARCHAR(100),
   region VARCHAR(255),
+  -- Subcontractor onboarding fields
+  ca_licensed VARCHAR(10),
+  ca_license_number VARCHAR(100),
+  need_entity_help VARCHAR(10),
+  need_insurance_help VARCHAR(10),
+  need_licensing_help VARCHAR(10),
+  insurance_type VARCHAR(255),
+  has_general_liability VARCHAR(10),
+  general_liability_amount VARCHAR(100),
   subscription_tier VARCHAR(20) DEFAULT 'free' CHECK (subscription_tier IN ('free', 'standard', 'pro', 'elite')),
   guaranteed_invites_per_month INT DEFAULT 0,
   invites_received_this_month INT DEFAULT 0,
