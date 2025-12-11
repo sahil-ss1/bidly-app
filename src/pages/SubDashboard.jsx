@@ -228,6 +228,96 @@ function SubDashboard() {
         </header>
 
         <div className="page-content">
+          {/* Pending Invitations Section - Show at top when there are pending invitations */}
+          {pendingInvitations > 0 && (
+            <>
+              <div id="invitations-section" className={`section-header ${pendingInvitations > 0 ? 'celebration-section' : ''}`}>
+                <h2 className="section-title">
+                  {pendingInvitations > 0 ? (
+                    <>
+                      <PartyPopper size={22} className="celebration-icon" />
+                      <Sparkles size={18} className="celebration-sparkle" />
+                    </>
+                  ) : (
+                    <Inbox size={22} />
+                  )}
+                  Pending Invitations
+                  {pendingInvitations > 0 && (
+                    <span className="section-badge celebration-badge">{pendingInvitations}</span>
+                  )}
+                </h2>
+                <div className="section-actions">
+                  <button 
+                    className="btn btn-secondary btn-sm"
+                    onClick={handleRefresh}
+                    disabled={refreshing}
+                  >
+                    <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
+                    Refresh
+                  </button>
+                </div>
+              </div>
+
+              <div className="projects-grid stagger-children">
+                {sortedPendingInvitations.map((project) => (
+                  <div
+                    key={project.id}
+                    className={`project-card invitation-${project.invitation_status} ${project.invitation_status === 'pending' ? 'new-invitation-celebration' : ''}`}
+                    onClick={() => navigate(`/sub/projects/${project.id}`)}
+                  >
+                    {project.invitation_status === 'pending' && (
+                      <div className="celebration-overlay">
+                        <PartyPopper size={24} />
+                        <Sparkles size={20} />
+                      </div>
+                    )}
+                    <div className="project-card-header">
+                      <div>
+                        <h3>{project.title}</h3>
+                        {/* Prominent GC Info */}
+                        {(project.gc_company || project.gc_name) && (
+                          <div className="project-gc-info">
+                            <Building2 size={16} />
+                            <span className="gc-label">From:</span>
+                            <span className="gc-name">{project.gc_company || project.gc_name}</span>
+                          </div>
+                        )}
+                      </div>
+                      <span className={`status-badge status-${project.invitation_status} ${project.invitation_status === 'pending' ? 'new-badge' : ''}`}>
+                        {project.invitation_status === 'viewed' ? 'Viewed' : 'NEW'}
+                      </span>
+                    </div>
+                    
+                    {project.description && (
+                      <p className="project-description">{project.description}</p>
+                    )}
+                    
+                    <div className="project-meta">
+                      {project.location && (
+                        <div className="project-meta-item">
+                          <MapPin size={14} />
+                          <span>{project.location}</span>
+                        </div>
+                      )}
+                      {project.bid_deadline && (
+                        <div className="project-meta-item">
+                          <Calendar size={14} />
+                          <span>Due: {new Date(project.bid_deadline).toLocaleDateString()}</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="project-card-actions">
+                      <button className="btn btn-primary btn-sm" onClick={(e) => { e.stopPropagation(); navigate(`/sub/projects/${project.id}`); }}>
+                        View & Bid
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
           {/* Guaranteed Bids Banner */}
           <div className={`guarantee-banner tier-${user.subscription_tier || 'free'}`}>
             <div className="guarantee-header">
@@ -334,100 +424,34 @@ function SubDashboard() {
           {/* Referral Card - Growth Flywheel */}
           <ReferralCard userRole="sub" />
 
-          {/* Pending Invitations Section */}
-          <div id="invitations-section" className={`section-header ${pendingInvitations > 0 ? 'celebration-section' : ''}`}>
-            <h2 className="section-title">
-              {pendingInvitations > 0 ? (
-                <>
-                  <PartyPopper size={22} className="celebration-icon" />
-                  <Sparkles size={18} className="celebration-sparkle" />
-                </>
-              ) : (
-                <Inbox size={22} />
-              )}
-              Pending Invitations
-              {pendingInvitations > 0 && (
-                <span className="section-badge celebration-badge">{pendingInvitations}</span>
-              )}
-            </h2>
-            <div className="section-actions">
-              <button 
-                className="btn btn-secondary btn-sm"
-                onClick={handleRefresh}
-                disabled={refreshing}
-              >
-                <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
-                Refresh
-              </button>
-            </div>
-          </div>
-
-          {sortedPendingInvitations.length === 0 ? (
-            <div className="empty-state small">
-              <div className="empty-state-icon">
-                <Inbox size={28} />
-              </div>
-              <h3>No pending invitations</h3>
-              <p>New bid invitations will appear here.</p>
-            </div>
-          ) : (
-            <div className="projects-grid stagger-children">
-              {sortedPendingInvitations.map((project) => (
-                <div
-                  key={project.id}
-                  className={`project-card invitation-${project.invitation_status} ${project.invitation_status === 'pending' ? 'new-invitation-celebration' : ''}`}
-                  onClick={() => navigate(`/sub/projects/${project.id}`)}
-                >
-                  {project.invitation_status === 'pending' && (
-                    <div className="celebration-overlay">
-                      <PartyPopper size={24} />
-                      <Sparkles size={20} />
-                    </div>
-                  )}
-                  <div className="project-card-header">
-                    <div>
-                      <h3>{project.title}</h3>
-                      {/* Prominent GC Info */}
-                      {(project.gc_company || project.gc_name) && (
-                        <div className="project-gc-info">
-                          <Building2 size={16} />
-                          <span className="gc-label">From:</span>
-                          <span className="gc-name">{project.gc_company || project.gc_name}</span>
-                        </div>
-                      )}
-                    </div>
-                    <span className={`status-badge status-${project.invitation_status} ${project.invitation_status === 'pending' ? 'new-badge' : ''}`}>
-                      {project.invitation_status === 'viewed' ? 'Viewed' : 'NEW'}
-                    </span>
-                  </div>
-                  
-                  {project.description && (
-                    <p className="project-description">{project.description}</p>
-                  )}
-                  
-                  <div className="project-meta">
-                    {project.location && (
-                      <div className="project-meta-item">
-                        <MapPin size={14} />
-                        <span>{project.location}</span>
-                      </div>
-                    )}
-                    {project.bid_deadline && (
-                      <div className="project-meta-item">
-                        <Calendar size={14} />
-                        <span>Due: {new Date(project.bid_deadline).toLocaleDateString()}</span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="project-card-actions">
-                    <button className="btn btn-primary btn-sm" onClick={(e) => { e.stopPropagation(); navigate(`/sub/projects/${project.id}`); }}>
-                      View & Bid
-                    </button>
-                  </div>
+          {/* Pending Invitations Section - Show here when no pending invitations */}
+          {pendingInvitations === 0 && (
+            <>
+              <div id="invitations-section" className="section-header">
+                <h2 className="section-title">
+                  <Inbox size={22} />
+                  Pending Invitations
+                </h2>
+                <div className="section-actions">
+                  <button 
+                    className="btn btn-secondary btn-sm"
+                    onClick={handleRefresh}
+                    disabled={refreshing}
+                  >
+                    <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
+                    Refresh
+                  </button>
                 </div>
-              ))}
-            </div>
+              </div>
+
+              <div className="empty-state small">
+                <div className="empty-state-icon">
+                  <Inbox size={28} />
+                </div>
+                <h3>No pending invitations</h3>
+                <p>New bid invitations will appear here.</p>
+              </div>
+            </>
           )}
 
           {/* My Bids Section */}
