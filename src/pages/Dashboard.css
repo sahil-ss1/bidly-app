@@ -1179,6 +1179,31 @@
   border-left: 3px solid var(--color-success);
 }
 
+/* Dashboard Sections Container */
+.dashboard-sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+/* New Project Section - Mobile */
+.new-project-section-mobile {
+  display: none;
+}
+
+.new-project-section-mobile .btn-new-project-mobile {
+  width: 100%;
+  justify-content: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Desktop: Hide mobile new project button, show desktop one */
+.section-actions-desktop {
+  display: flex;
+}
+
 /* Mobile responsive */
 @media (max-width: 1024px) {
   .sidebar {
@@ -1229,6 +1254,24 @@
   
   .top-header {
     padding: var(--spacing-md);
+  }
+
+  /* Mobile: Show mobile new project button, hide desktop one */
+  .new-project-section-mobile {
+    display: block;
+    order: 1;
+  }
+
+  .section-actions-desktop {
+    display: none;
+  }
+
+  .referral-card-wrapper {
+    order: 2;
+  }
+
+  .projects-section-wrapper {
+    order: 3;
   }
 }
 
